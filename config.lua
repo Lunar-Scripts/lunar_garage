@@ -51,13 +51,13 @@ Config.Blips = {
 Config.Garages = {
     {
 		Visible = true, --Blip visible on map.
-        Type = 'car',
+        	Type = 'car',
 		Position = vector3(220.1418, -800.1686, 30.7227),
 		SpawnPosition = vector4(229.3425, -801.4708, 30.5659, 161.8591) --vector4(x, y, z, heading)
     },
 	{
 		Visible = true, --Blip visible on map.
-        Type = 'car',
+        	Type = 'car',
 		Position = vector3(273.0, -343.85, 44.91),
 		SpawnPosition = vector4(270.75, -340.51, 44.92, 342.03) --vector4(x, y, z, heading)
     },
