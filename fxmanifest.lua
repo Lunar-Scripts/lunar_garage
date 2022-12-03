@@ -7,11 +7,6 @@ author 'Lunar Scripts'
 description 'Garage system'
 version '1.0.0'
 
--- What to run
-escrow_ignore {
-    'config.lua'
-}
-
 shared_scripts {
     '@ox_lib/init.lua',
     '@es_extended/imports.lua',
