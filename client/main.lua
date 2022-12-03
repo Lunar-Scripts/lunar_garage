@@ -144,30 +144,36 @@ end
 
 Citizen.CreateThread(function()
     for k,v in pairs(Config.Garages) do
-        local blip = AddBlipForCoord(v.Position.x, v.Position.y, v.Position.z)
-        local info = Config.Blips[v.Type].Garage
-        SetBlipSprite(blip, info.Type)
-        SetBlipDisplay(blip, 4)
-        SetBlipScale(blip, info.Size)
-        SetBlipColour(blip, info.Color)
-        SetBlipAsShortRange(blip, true)
+        --Implicitly visible if someone forgets to add it in config.lua
+        if v.Visible ~= false then
+            local blip = AddBlipForCoord(v.Position.x, v.Position.y, v.Position.z)
+            local info = Config.Blips[v.Type].Garage
+            SetBlipSprite(blip, info.Type)
+            SetBlipDisplay(blip, 4)
+            SetBlipScale(blip, info.Size)
+            SetBlipColour(blip, info.Color)
+            SetBlipAsShortRange(blip, true)
 
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(info.Name)
-        EndTextCommandSetBlipName(blip)
+            BeginTextCommandSetBlipName('STRING')
+            AddTextComponentSubstringPlayerName(info.Name)
+            EndTextCommandSetBlipName(blip)
+        end
     end
     for k,v in pairs(Config.Impounds) do
-        local blip = AddBlipForCoord(v.Position.x, v.Position.y, v.Position.z)
-        local info = Config.Blips[v.Type].Impound
-        SetBlipSprite(blip, info.Type)
-        SetBlipDisplay(blip, 4)
-        SetBlipScale(blip, info.Size)
-        SetBlipColour(blip, info.Color)
-        SetBlipAsShortRange(blip, true)
+        --Implicitly visible if someone forgets to add it in config.lua
+        if v.Visible ~= false then
+            local blip = AddBlipForCoord(v.Position.x, v.Position.y, v.Position.z)
+            local info = Config.Blips[v.Type].Impound
+            SetBlipSprite(blip, info.Type)
+            SetBlipDisplay(blip, 4)
+            SetBlipScale(blip, info.Size)
+            SetBlipColour(blip, info.Color)
+            SetBlipAsShortRange(blip, true)
 
-        BeginTextCommandSetBlipName('STRING')
-        AddTextComponentSubstringPlayerName(info.Name)
-        EndTextCommandSetBlipName(blip)
+            BeginTextCommandSetBlipName('STRING')
+            AddTextComponentSubstringPlayerName(info.Name)
+            EndTextCommandSetBlipName(blip)
+        end
     end
 end)
 
