@@ -33,7 +33,7 @@ RegisterCommand('opengarage', function()
                         if label == 'NULL' then 
                             label = GetDisplayNameFromVehicleModel(props.model)
                         end
-                        if v.stored == true then
+                        if v.stored == true or v.stored == 1 then
                             table.insert(elements, {
                                 title = _U('vehicle', label),
                                 description = _U('license_plate', props.plate),
