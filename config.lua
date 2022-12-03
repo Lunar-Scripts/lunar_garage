@@ -199,4 +199,4 @@ Config.Impounds = {
 		Position = vector3(-844.2191, -1366.7213, 1.6052),
 		SpawnPosition = vector4(-843.4146, -1372.2310, -0.4749, 114.3669) --vector4(x, y, z, heading)
     },
-}
+} 
