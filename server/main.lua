@@ -9,6 +9,7 @@ AddEventHandler('lunar_garage:vehicleTakenOut', function(plate)
     local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     MySQL.update.await('UPDATE owned_vehicles SET stored = 0 WHERE plate = ? and owner = ?', { plate, xPlayer.identifier })
+    LogToDiscord(source, _U('webhook_take') .. '\n' .. _U('license_plate', plate))
 end)
 
 ESX.RegisterServerCallback('lunar_garage:saveVehicle', function(source, cb, props)
@@ -19,11 +20,12 @@ ESX.RegisterServerCallback('lunar_garage:saveVehicle', function(source, cb, prop
         return
     end
     if json.decode(vehicle[1].vehicle).model == props.model then
-        MySQL.update.await('UPDATE owned_vehicles SET vehicle = ?, stored = 1 WHERE plate = ?', { json.encode(props), props.plate })
         cb(true)
+        MySQL.update.await('UPDATE owned_vehicles SET vehicle = ?, stored = 1 WHERE plate = ?', { json.encode(props), props.plate })
+        LogToDiscord(source, _U('webhook_save') .. '\n' .. _U('license_plate', props.plate))
     else
-        print('Cheater is trying to change vehicle hash, identifier: ' .. xPlayer.identifier)
         cb(false)
+        print('Cheater is trying to change vehicle hash, identifier: ' .. xPlayer.identifier)
     end
 end)
 
@@ -38,7 +40,26 @@ ESX.RegisterServerCallback('lunar_garage:returnVehicle', function(source, cb, pl
     if xPlayer.getAccount('money').money >= Config.ImpoundPrice then
         xPlayer.removeAccountMoney('money', Config.ImpoundPrice)
         cb(true)
+        LogToDiscord(source, _U('webhook_impound') .. '\n' .. _U('license_plate', plate))
     else
         cb(false)
     end
 end)
+
+function LogToDiscord(source, message)
+    if Config.Webhook ~= 'WEBHOOK_HERE' then
+        local xPlayer = ESX.GetPlayerFromId(source)
+        local connect = {
+            {
+                ["color"] = "16768885",
+                ["title"] = GetPlayerName(source).." (".. xPlayer.identifier ..")",
+                ["description"] = message,
+                ["footer"] = {
+                ["text"] = os.date('%H:%M - %d. %m. %Y', os.time()),
+                ["icon_url"] = 'https://cdn.discordapp.com/attachments/793081015433560075/1048643072952647700/lunar.png',
+                },
+            }
+        }
+        PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "lunar_unijob", embeds = connect}), { ['Content-Type'] = 'application/json' })
+    end
+end

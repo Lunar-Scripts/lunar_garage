@@ -14,4 +14,7 @@ Locales['cs'] = {
     ['impound_prompt'] = '[E] - Otevřít odtahovku',
     ['no_impound_vehicles'] = 'Nemáš žádné vozidlo na odtahovce.',
     ['not_enough_money'] = 'Nedodstatek peněz.',
+    ['webhook_take'] = 'Vyparkoval vozidlo',
+    ['webhook_save'] = 'Uložil vozidlo',
+    ['webhook_impound'] = 'Zaplatil za navrácení odtáhlého vozidla',
 }

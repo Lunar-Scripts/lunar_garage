@@ -1,4 +1,5 @@
 Config = {}
+Config.Webhook = 'WEBHOOK_HERE'
 Config.Locale = 'en'
 Config.Notify = 'esx:showNotification'
 Config.MaxDistance = 10.0 --Max interact distance

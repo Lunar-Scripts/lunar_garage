@@ -116,11 +116,11 @@ end, false)
 
 function SpawnVehicle(props)
     local garage = Config.Garages[currentData]
-    TriggerServerEvent('lunar_garage:vehicleTakenOut', props.plate)
     ESX.Game.SpawnVehicle(props.model, garage.SpawnPosition, garage.SpawnPosition.w, function(vehicle)
         if DoesEntityExist(vehicle) then
             ESX.Game.SetVehicleProperties(vehicle, props)
             TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
+            TriggerServerEvent('lunar_garage:vehicleTakenOut', props.plate)
         end
     end)
 end
@@ -138,8 +138,7 @@ function RetrieveVehicle(props)
         else
             TriggerEvent(Config.Notify, _U('not_enough_money'))
         end
-    end, args)
-    
+    end, props.plate)
 end
 
 Citizen.CreateThread(function()

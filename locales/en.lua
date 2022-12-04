@@ -14,4 +14,7 @@ Locales['en'] = {
     ['impound_prompt'] = '[E] - Open impound',
     ['no_impound_vehicles'] = 'No vehicles impounded.',
     ['not_enough_money'] = 'Not enough money.',
+    ['webhook_take'] = 'Took out a vehicle',
+    ['webhook_save'] = 'Saved a vehicle',
+    ['webhook_impound'] = 'Paid for an impounded vehicle',
 }
