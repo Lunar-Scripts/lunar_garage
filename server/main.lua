@@ -1,3 +1,5 @@
+local recentVehicles = {}
+
 ESX.RegisterServerCallback('lunar_garage:getVehicles', function(source, cb, garage)
     local xPlayer = ESX.GetPlayerFromId(source)
     local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ?', { xPlayer.identifier, Config.Garages[garage].Type })
@@ -23,6 +25,7 @@ ESX.RegisterServerCallback('lunar_garage:saveVehicle', function(source, cb, prop
         cb(true)
         MySQL.update.await('UPDATE owned_vehicles SET vehicle = ?, stored = 1 WHERE plate = ?', { json.encode(props), props.plate })
         LogToDiscord(source, _U('webhook_save') .. '\n' .. _U('license_plate', props.plate))
+        recentVehicles[props.plate] = nil
     else
         cb(false)
         print('Cheater is trying to change vehicle hash, identifier: ' .. xPlayer.identifier)
@@ -32,7 +35,13 @@ end)
 ESX.RegisterServerCallback('lunar_garage:getImpoundedVehicles', function(source, cb, garage)
     local xPlayer = ESX.GetPlayerFromId(source)
     local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and stored = 0', { xPlayer.identifier, Config.Garages[garage].Type })
-    cb(vehicles)
+    local impoundedVehicles = {}
+    for k,v in ipairs(vehicles) do
+        if recentVehicles[v.plate] == nil then
+            table.insert(impoundedVehicles, v)
+        end
+    end
+    cb(impoundedVehicles)
 end)
 
 ESX.RegisterServerCallback('lunar_garage:returnVehicle', function(source, cb, plate)
@@ -41,6 +50,10 @@ ESX.RegisterServerCallback('lunar_garage:returnVehicle', function(source, cb, pl
         xPlayer.removeAccountMoney('money', Config.ImpoundPrice)
         cb(true)
         LogToDiscord(source, _U('webhook_impound') .. '\n' .. _U('license_plate', plate))
+        recentVehicles[plate] = true
+        Citizen.SetTimeout(60000, function()
+            recentVehicles[plate] = nil
+        end)
     else
         cb(false)
     end
