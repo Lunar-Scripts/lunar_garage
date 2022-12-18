@@ -116,6 +116,7 @@ end, false)
 
 function SpawnVehicle(props)
     local garage = Config.Garages[currentData]
+    if ESX.Game.IsSpawnPointClear(vector3(garage.SpawnPosition), 1.0) then
     ESX.Game.SpawnVehicle(props.model, garage.SpawnPosition, garage.SpawnPosition.w, function(vehicle)
         if DoesEntityExist(vehicle) then
             ESX.Game.SetVehicleProperties(vehicle, props)
@@ -123,6 +124,9 @@ function SpawnVehicle(props)
             TriggerServerEvent('lunar_garage:vehicleTakenOut', props.plate)
         end
     end)
+else
+    TriggerEvent(Config.Notify, 'Please move the vehicle blocking spawn point')
+end
 end
 
 function RetrieveVehicle(props)
