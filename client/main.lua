@@ -23,75 +23,9 @@ RegisterCommand('opengarage', function()
         return
     end
     if currentZone == 'open' then
-        ESX.TriggerServerCallback('lunar_garage:getVehicles', function(vehicles) 
-            if #vehicles > 0 then
-                local elements = {}
-                for k,v in ipairs(vehicles) do
-                    local props = json.decode(v.vehicle)
-                    if IsModelInCdimage(props.model) then
-                        local label = GetLabelText(GetDisplayNameFromVehicleModel(props.model))
-                        if label == 'NULL' then 
-                            label = GetDisplayNameFromVehicleModel(props.model)
-                        end
-                        if v.stored == true or v.stored == 1 then
-                            table.insert(elements, {
-                                title = _U('vehicle', label),
-                                description = _U('license_plate', props.plate),
-                                metadata = { { label = 'Status', value = _U('in_garage') } },
-                                onSelect = SpawnVehicle,
-                                args = props,
-                            })
-                        else
-                            table.insert(elements, {
-                                title = _U('vehicle', label),
-                                description = _U('license_plate', props.plate),
-                                metadata = { { label = 'Status', value = _U('out_garage') } },
-                                onSelect = function(args)
-                                    TriggerEvent(Config.Notify, _U('impounded'))
-                                end,
-                            })
-                        end
-                    end
-                end
-                lib.registerContext({
-                    id = 'garage',
-                    title = _U('garage'),
-                    options = elements,
-                })
-                lib.showContext('garage')
-            else
-                TriggerEvent(Config.Notify, _U('no_vehicles'))
-            end
-        end, currentData)
+        lib.showContext('open_garage')
     elseif currentZone == 'impound' then
-        ESX.TriggerServerCallback('lunar_garage:getImpoundedVehicles', function(vehicles) 
-            if #vehicles > 0 then
-                local elements = {}
-                for k,v in ipairs(vehicles) do
-                    local props = json.decode(v.vehicle)
-                    if IsModelInCdimage(props.model) then
-                        local label = GetLabelText(GetDisplayNameFromVehicleModel(props.model))
-                        if label == 'NULL' then 
-                            label = GetDisplayNameFromVehicleModel(props.model)
-                        end
-                        table.insert(elements, {
-                            title = _U('vehicle', label),
-                            description = _U('license_plate', props.plate),
-                            onSelect = RetrieveVehicle,
-                            args = props,
-                        })
-                    end
-                end
-                lib.registerContext({
-                    id = 'impound',
-                    title = _U('impound'),
-                    options = elements,
-                })
-                lib.showContext('impound')
-            else
-                TriggerEvent(Config.Notify, _U('no_impound_vehicles'))
-            end
-        end, currentData)
+        lib.showContext('open_impound')
     end
 end, false)
 
@@ -116,7 +50,7 @@ end, false)
 
 function SpawnVehicle(props)
     local garage = Config.Garages[currentData]
-    ESX.Game.SpawnVehicle(props.model, garage.SpawnPosition, garage.SpawnPosition.w, function(vehicle)
+    ESX.Game.SpawnVehicle(props.model, vector3(garage.SpawnPosition.x, garage.SpawnPosition.y, garage.SpawnPosition.z), garage.SpawnPosition.w, function(vehicle)
         if DoesEntityExist(vehicle) then
             ESX.Game.SetVehicleProperties(vehicle, props)
             TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
@@ -129,7 +63,7 @@ function RetrieveVehicle(props)
     local impound = Config.Impounds[currentData]
     ESX.TriggerServerCallback('lunar_garage:returnVehicle', function(success) 
         if success then
-            ESX.Game.SpawnVehicle(props.model, impound.SpawnPosition, impound.SpawnPosition.w, function(vehicle) 
+            ESX.Game.SpawnVehicle(props.model, vector3(impound.SpawnPosition.x, impound.SpawnPosition.y, impound.SpawnPosition.z), impound.SpawnPosition.w, function(vehicle) 
                 if DoesEntityExist(vehicle) then
                     ESX.Game.SetVehicleProperties(vehicle, props)
                     TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
@@ -174,7 +108,123 @@ Citizen.CreateThread(function()
             EndTextCommandSetBlipName(blip)
         end
     end
+    lib.registerContext({
+        id = 'open_garage',
+        title = _U('garage'),
+        options = {
+            {
+                title = _U('personal'),
+                args = { shared = false },
+                onSelect = OpenGarage
+            },
+            {
+                title = _U('society'),
+                args = { shared = true },
+                onSelect = OpenGarage
+            }
+        },
+        
+    })
+    lib.registerContext({
+        id = 'open_impound',
+        title = _U('impound'),
+        options = {
+            {
+                title = _U('personal'),
+                args = { shared = false },
+                onSelect = OpenImpound
+            },
+            {
+                title = _U('society'),
+                args = { shared = true },
+                onSelect = OpenImpound
+            }
+        },
+        
+    })
 end)
+
+function OpenGarage(args)
+    ESX.TriggerServerCallback('lunar_garage:getVehicles', function(vehicles) 
+        if #vehicles > 0 then
+            local elements = {}
+            for k,v in ipairs(vehicles) do
+                local props = json.decode(v.vehicle)
+                if IsModelInCdimage(props.model) then
+                    local label = GetLabelText(GetDisplayNameFromVehicleModel(props.model))
+                    if label == 'NULL' then 
+                        label = GetDisplayNameFromVehicleModel(props.model)
+                    end
+                    if v.stored == true or v.stored == 1 then
+                        table.insert(elements, {
+                            title = _U('vehicle', label),
+                            description = _U('license_plate', props.plate),
+                            metadata = { { label = 'Status', value = _U('in_garage') } },
+                            onSelect = SpawnVehicle,
+                            args = props,
+                        })
+                    else
+                        table.insert(elements, {
+                            title = _U('vehicle', label),
+                            description = _U('license_plate', props.plate),
+                            metadata = { { label = 'Status', value = _U('out_garage') } },
+                            onSelect = function(args)
+                                TriggerEvent(Config.Notify, _U('impounded'))
+                            end,
+                        })
+                    end
+                end
+            end
+            lib.registerContext({
+                id = 'garage',
+                title = _U('garage'),
+                options = elements,
+            })
+            lib.showContext('garage')
+        else
+            if not args.shared then
+                TriggerEvent(Config.Notify, _U('no_vehicles'))
+            else
+                TriggerEvent(Config.Notify, _U('no_society_vehicles'))
+            end
+        end
+    end, currentData, args.shared)
+end
+
+function OpenImpound(args)
+    ESX.TriggerServerCallback('lunar_garage:getImpoundedVehicles', function(vehicles) 
+        if #vehicles > 0 then
+            local elements = {}
+            for k,v in ipairs(vehicles) do
+                local props = json.decode(v.vehicle)
+                if IsModelInCdimage(props.model) then
+                    local label = GetLabelText(GetDisplayNameFromVehicleModel(props.model))
+                    if label == 'NULL' then 
+                        label = GetDisplayNameFromVehicleModel(props.model)
+                    end
+                    table.insert(elements, {
+                        title = _U('vehicle', label),
+                        description = _U('license_plate', props.plate),
+                        onSelect = RetrieveVehicle,
+                        args = props,
+                    })
+                end
+            end
+            lib.registerContext({
+                id = 'impound',
+                title = _U('impound'),
+                options = elements,
+            })
+            lib.showContext('impound')
+        else
+            if not args.shared then
+                TriggerEvent(Config.Notify, _U('no_impound_vehicles'))
+            else
+                TriggerEvent(Config.Notify, _U('no_society_impound_vehicles'))
+            end
+        end
+    end, currentData, args.shared)
+end
 
 Citizen.CreateThread(function()
     while true do

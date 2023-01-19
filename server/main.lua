@@ -1,22 +1,27 @@
 local recentVehicles = {}
 
-ESX.RegisterServerCallback('lunar_garage:getVehicles', function(source, cb, garage)
+ESX.RegisterServerCallback('lunar_garage:getVehicles', function(source, cb, garage, shared)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ?', { xPlayer.identifier, Config.Garages[garage].Type })
-    cb(vehicles)
+    if shared then
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ?', { xPlayer.job.name, Config.Garages[garage].Type })
+        cb(vehicles)
+    else
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ?', { xPlayer.identifier, Config.Garages[garage].Type })
+        cb(vehicles)
+    end
 end)
 
 RegisterNetEvent('lunar_garage:vehicleTakenOut')
 AddEventHandler('lunar_garage:vehicleTakenOut', function(plate)
     local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
-    MySQL.update.await('UPDATE owned_vehicles SET stored = 0 WHERE plate = ? and owner = ?', { plate, xPlayer.identifier })
+    MySQL.update.await('UPDATE owned_vehicles SET stored = 0 WHERE plate = ? and (owner = ? or job = ?)', { plate, xPlayer.identifier, xPlayer.job.name })
     LogToDiscord(source, _U('webhook_take') .. '\n' .. _U('license_plate', plate))
 end)
 
 ESX.RegisterServerCallback('lunar_garage:saveVehicle', function(source, cb, props)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local vehicle = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ? and owner = ?', { props.plate, xPlayer.identifier })
+    local vehicle = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ? and (owner = ? or job = ?)', { props.plate, xPlayer.identifier, xPlayer.job.name })
     if #vehicle == 0 then
         cb(false)
         return
@@ -32,9 +37,14 @@ ESX.RegisterServerCallback('lunar_garage:saveVehicle', function(source, cb, prop
     end
 end)
 
-ESX.RegisterServerCallback('lunar_garage:getImpoundedVehicles', function(source, cb, garage)
+ESX.RegisterServerCallback('lunar_garage:getImpoundedVehicles', function(source, cb, garage, shared)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and stored = 0', { xPlayer.identifier, Config.Garages[garage].Type })
+    local vehicles
+    if shared then
+        vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ? and stored = 0', { xPlayer.job.name, Config.Garages[garage].Type })
+    else
+        vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and stored = 0', { xPlayer.identifier, Config.Garages[garage].Type })
+    end
     local impoundedVehicles = {}
     for k,v in ipairs(vehicles) do
         if recentVehicles[v.plate] == nil then
@@ -73,6 +83,6 @@ function LogToDiscord(source, message)
                 },
             }
         }
-        PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "lunar_garage", embeds = connect}), { ['Content-Type'] = 'application/json' })
+        PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "lunar_unijob", embeds = connect}), { ['Content-Type'] = 'application/json' })
     end
 end

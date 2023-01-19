@@ -1,19 +1,19 @@
 Config = {}
-Config.Webhook = 'WEBHOOK_HERE'
-Config.Locale = 'en'
+Config.Webhook = 'https://discordapp.com/api/webhooks/1062460803900510240/WUtr8xLceIg6L7FKgYxpPBXn3QHscDsyLAIVCgUr8IxhlQ3yTrAnkJD-xhDPVMsPzNy8'
+Config.Locale = 'cs'
 Config.Notify = 'esx:showNotification'
 Config.MaxDistance = 10.0 --Max interact distance
 
 Config.Blips = {
     ['car'] = {
         Garage = {
-            Name = 'Vehicle Garage',
+            Name = '<font face="Roboto">Garáž',
             Type = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
-            Name = 'Vehicle Impound',
+            Name = '<font face="Roboto">Odtahovka',
             Type = 357,
             Size = 0.5,
             Color = 3
@@ -21,13 +21,13 @@ Config.Blips = {
     },
     ['air'] = {
         Garage = {
-            Name = 'Helicopter Garage',
+            Name = '<font face="Roboto">Air Garáž',
             Type = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
-            Name = 'Helicopter Impound',
+            Name = '<font face="Roboto">Air Odtahovka',
             Type = 357,
             Size = 0.5,
             Color = 3
@@ -35,13 +35,13 @@ Config.Blips = {
     },
     ['boat'] = {
         Garage = {
-            Name = 'Boat Garage',
+            Name = '<font face="Roboto">Boat Garáž',
             Type = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
-            Name = 'Boat Impound',
+            Name = '<font face="Roboto">Boat Odtahovka',
             Type = 357,
             Size = 0.5,
             Color = 3
