@@ -7,13 +7,13 @@ Config.MaxDistance = 10.0 --Max interact distance
 Config.Blips = {
     ['car'] = {
         Garage = {
-            Name = '<font face="Roboto">Garáž',
+            Name = 'Garage',
             Type = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
-            Name = '<font face="Roboto">Odtahovka',
+            Name = 'Impound',
             Type = 357,
             Size = 0.5,
             Color = 3
@@ -21,13 +21,13 @@ Config.Blips = {
     },
     ['air'] = {
         Garage = {
-            Name = '<font face="Roboto">Air Garáž',
+            Name = 'Air Garage',
             Type = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
-            Name = '<font face="Roboto">Air Odtahovka',
+            Name = 'Air Impound',
             Type = 357,
             Size = 0.5,
             Color = 3
@@ -35,13 +35,13 @@ Config.Blips = {
     },
     ['boat'] = {
         Garage = {
-            Name = '<font face="Roboto">Boat Garáž',
+            Name = 'Boat Garage',
             Type = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
-            Name = '<font face="Roboto">Boat Odtahovka',
+            Name = 'Boat Impound',
             Type = 357,
             Size = 0.5,
             Color = 3
