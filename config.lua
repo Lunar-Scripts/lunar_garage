@@ -1,5 +1,5 @@
 Config = {}
-Config.Webhook = 'https://discordapp.com/api/webhooks/1062460803900510240/WUtr8xLceIg6L7FKgYxpPBXn3QHscDsyLAIVCgUr8IxhlQ3yTrAnkJD-xhDPVMsPzNy8'
+Config.Webhook = 'WEBHOOK_HERE'
 Config.Locale = 'cs'
 Config.Notify = 'esx:showNotification'
 Config.MaxDistance = 10.0 --Max interact distance
