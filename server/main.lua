@@ -83,6 +83,6 @@ function LogToDiscord(source, message)
                 },
             }
         }
-        PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "lunar_unijob", embeds = connect}), { ['Content-Type'] = 'application/json' })
+        PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "lunar_garage", embeds = connect}), { ['Content-Type'] = 'application/json' })
     end
 end
