@@ -6,7 +6,7 @@ ESX.RegisterServerCallback('lunar_garage:getVehicles', function(source, cb, gara
         local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ?', { xPlayer.job.name, Config.Garages[garage].Type })
         cb(vehicles)
     else
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ?', { xPlayer.identifier, Config.Garages[garage].Type })
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and job = NULL', { xPlayer.identifier, Config.Garages[garage].Type })
         cb(vehicles)
     end
 end)
