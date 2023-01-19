@@ -43,7 +43,7 @@ ESX.RegisterServerCallback('lunar_garage:getImpoundedVehicles', function(source,
     if shared then
         vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ? and stored = 0', { xPlayer.job.name, Config.Garages[garage].Type })
     else
-        vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and stored = 0', { xPlayer.identifier, Config.Garages[garage].Type })
+        vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and stored = 0 and job = NULL', { xPlayer.identifier, Config.Garages[garage].Type })
     end
     local impoundedVehicles = {}
     for k,v in ipairs(vehicles) do
