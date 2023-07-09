@@ -56,13 +56,13 @@ Config.Blips = {
 }
 
 ---@class LocationData
----@field Visible boolean Blip visibility on map
----@field Type VehicleType The vehicle type
----@field Position? vector3 Needs to be defined if PedPosition isn't
----@field PedPosition? vector4 Needs to be defined if Position isn't
----@field Model? number Needs to be defined if PedPosition is defined
----@field SpawnPosition vector4 The vehicle spawn position
----@field Jobs? string | string[] Optionally limit to jobs
+---@field Visible boolean Blip visibility on map.
+---@field Type VehicleType The vehicle type.
+---@field Position? vector3 Needs to be defined if PedPosition isn't.
+---@field PedPosition? vector4 Needs to be defined if Position isn't.
+---@field Model? number Needs to be defined if PedPosition is defined.
+---@field SpawnPosition vector4 The vehicle spawn position.
+---@field Jobs? string | string[] Optionally limit to jobs.
 
 ---@type LocationData[]
 Config.Garages = {
