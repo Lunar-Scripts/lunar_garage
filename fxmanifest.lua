@@ -13,19 +13,21 @@ files {
 
 shared_scripts {
     '@ox_lib/init.lua',
-    '@es_extended/imports.lua',
-    'config.lua'
+    'config/config.lua'
 }
 
 client_scripts {
-    '@es_extended/locale.lua',
-    'client/cl_edit.lua',
+    'framework/**/client.lua',
+    'utils/cl_main.lua',
+    'config/cl_edit.lua',
     'client/main.lua'
 }
 
 server_scripts {
+    'framework/**/server.lua',
     '@oxmysql/lib/MySQL.lua',
+    'utils/sv_main.lua',
     'config/sv_config.lua',
     'locales/*.lua',
     'server/main.lua'
-} 
+}
