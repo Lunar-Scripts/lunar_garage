@@ -49,7 +49,7 @@ end
 
 local function OpenGarageVehicles(args)
     local index, society in args
-    local vehicles = lib.callback.await('lunar_garage:getOwnedVehicles', false, society)
+    local vehicles = lib.callback.await('lunar_garage:getOwnedVehicles', false, index, society)
     
     ---@type ContextMenuArrayItem[]
     local options = {}
@@ -187,7 +187,7 @@ end
 
 local function OpenImpoundVehicles(args)
     local index, society in args
-    local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, society)
+    local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, index, society)
     
     ---@type ContextMenuArrayItem[]
     local options = {}
