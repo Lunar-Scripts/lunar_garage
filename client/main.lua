@@ -95,14 +95,14 @@ local function OpenGarage(index)
         title = locale('garage_menu'),
         options = {
             {
-                title = locale('player_owned'),
-                description = locale('player_owned_desc'),
+                title = locale('player_vehicles'),
+                description = locale('player_vehicles_desc'),
                 args = { index, false },
                 onSelect = OpenGarageVehicles
             },
             {
-                title = locale('society_owned'),
-                description = locale('society_owned_desc'),
+                title = locale('society_vehicles'),
+                description = locale('society_vehicles_desc'),
                 args = { index, true },
                 onSelect = OpenGarageVehicles
             },
@@ -110,6 +110,60 @@ local function OpenGarage(index)
     })
 
     lib.showContext('garage_menu')
+end
+
+local openKeybind = lib.addKeybind({
+    name = 'open_garage',
+    description = 'Open garage/impound',
+    defaultKey = 'E',
+    onPressed = function()
+        if zone.type == 'garage' then
+            OpenGarage(zone.index)
+        elseif zone.type == 'impound' then
+            OpenImpound(zone.index)
+        end
+    end
+})
+
+for index, data in ipairs(Config.Garages) do
+    if data.Position and data.PedPosition then
+        error('Position and PedPosition can\'t be defined at the same time!')
+    end
+    
+    if data.Position then
+        lib.zones.sphere({
+            coords = data.Position,
+            radius = Config.MaxDistance,
+            onEnter = function()
+                ShowUI(('[%s] - %s'):format(openKeybind.currentKey, locale('open_garage')))
+                zone = { type = 'garage', index = index }
+            end,
+            onExit = function()
+                if zone.type == 'garage' then
+                    HideUI()
+                    zone = nil
+                end
+            end
+        })
+    elseif data.PedPosition then
+        if not data.Model then
+            warn('Skipping garage - missing Model, index: %s', index)
+            goto skip
+        end
+
+        Utils.CreatePed(data.PedPosition, data.Model, {
+            {
+                label = locale('open_garage'),
+                icon = 'warehouse',
+                args = index,
+                action = OpenGarage
+            }
+        })
+    else
+        warn('Skipping garage - missing Position or PedPosition, index: %s', index)
+    end
+
+    ::skip::
 end
 
 local function RetrieveVehicle(index, props)
@@ -176,14 +230,14 @@ local function OpenImpound(index)
         title = locale('impound_menu'),
         options = {
             {
-                title = locale('player_owned'),
-                description = locale('player_owned_desc'),
+                title = locale('player_vehicles'),
+                description = locale('player_vehicles_desc'),
                 args = { index, false },
                 onSelect = OpenImpoundVehicles
             },
             {
-                title = locale('society_owned'),
-                description = locale('society_owned_desc'),
+                title = locale('society_vehicles'),
+                description = locale('society_vehicles_desc'),
                 args = { index, true },
                 onSelect = OpenImpoundVehicles
             },
@@ -193,20 +247,7 @@ local function OpenImpound(index)
     lib.showContext('impound_menu')
 end
 
-local openKeybind = lib.addKeybind({
-    name = 'open_garage',
-    description = 'Open garage/impound',
-    defaultKey = 'E',
-    onPressed = function()
-        if zone.type == 'garage' then
-            OpenGarage(zone.index)
-        elseif zone.type == 'impound' then
-            OpenImpound(zone.index)
-        end
-    end
-})
-
-for index, data in ipairs(Config.Garages) do
+for index, data in ipairs(Config.Impounds) do
     if data.Position and data.PedPosition then
         error('Position and PedPosition can\'t be defined at the same time!')
     end
@@ -216,11 +257,11 @@ for index, data in ipairs(Config.Garages) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                ShowUI(('[%s] - %s'):format(openKeybind.currentKey, locale('open_garage')))
-                zone = { type = 'garage', index = index }
+                ShowUI(('[%s] - %s'):format(openKeybind.currentKey, locale('open_impound')))
+                zone = { type = 'impound', index = index }
             end,
             onExit = function()
-                if zone.type == 'garage' then
+                if zone.type == 'impound' then
                     HideUI()
                     zone = nil
                 end
@@ -228,20 +269,20 @@ for index, data in ipairs(Config.Garages) do
         })
     elseif data.PedPosition then
         if not data.Model then
-            warn('Invalid garage - missing Model, index: %s', index)
+            warn('Skipping impound - missing Model, index: %s', index)
             goto skip
         end
 
         Utils.CreatePed(data.PedPosition, data.Model, {
             {
-                label = locale('open_garage'),
+                label = locale('open_impound'),
                 icon = 'warehouse',
                 args = index,
-                action = OpenGarage
+                action = OpenImpound
             }
         })
     else
-        warn('Invalid garage - missing Position or PedPosition, index: %s', index)
+        warn('Skipping impound - missing Position or PedPosition, index: %s', index)
     end
 
     ::skip::
