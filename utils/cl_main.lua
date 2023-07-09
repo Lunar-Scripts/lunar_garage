@@ -27,6 +27,19 @@ local scenarios = {
 }
 
 function Utils.CreatePed(coords, model, options)
+    -- Convert action to qtarget
+    if options then
+        for _, option in pairs(options) do
+            if option.onSelect then
+                local event = ('options_%p'):format(option.onSelect) -- Create unique name
+                AddEventHandler(event, function()
+                    option.onSelect(option.args)
+                end)
+                option.event = event
+            end
+        end
+    end
+
     local ped
     lib.points.new(coords.xyz, 100.0, {
         onEnter = function()
@@ -38,6 +51,8 @@ function Utils.CreatePed(coords, model, options)
             TaskStartScenarioInPlace(ped, Utils.RandomFromTable(scenarios))
             if options then
                 local name = ('garage_ped_%s'):format(ped)
+
+                -- No need to add support for ox_target/qb-target, because this export is intercompatible
                 export.qtarget:AddCircleZone(name, coords.xyz, 0.75, {
                     name = name,
                     debugPoly = false

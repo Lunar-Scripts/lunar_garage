@@ -1,269 +1,248 @@
-local currentZone, currentData = nil, nil
+local zone
 
-function ShowUI(message, icon)
-    if icon == 0 then
-        lib.showTextUI(message)
+local function SpawnVehicle(args)
+    ---@type integer, VehicleProperties
+    local index, props in args
+    
+    lib.requestModel(props.model)
+    local netId = lib.callback.await('lunar_garage:takeOutVehicle', false, index, props.plate)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+
+    if vehicle ~= 0 then
+        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+    end
+end
+
+local function GetVehicleLabel(model)
+    local label = GetLabelText(GetDisplayNameFromVehicleModel(model))
+    
+    if label == 'NULL' then 
+        label = GetDisplayNameFromVehicleModel(model)
+    end
+
+    return label
+end
+
+local function GetClassIcon(class)
+    if class == 8 then
+        return 'motorcycle'
+    elseif class == 13 then
+        return 'bicycle'
+    elseif class == 15 then
+        return 'helicopter'
     else
-        lib.showTextUI(message, {
-            icon = icon
+        return 'car'
+    end
+end
+
+local function GetFuelBarColor(fuel)
+    if fuel > 75.0 then
+        return 'lime'
+    elseif fuel > 50.0 then
+        return 'yellow'
+    elseif fuel > 25.0 then
+        return 'orange'
+    else
+        return 'red'
+    end
+end
+
+local function OpenGarageVehicles(args)
+    local index, society in args
+    local vehicles = lib.callback.await('lunar_garage:getOwnedVehicles', false, society)
+    
+    ---@type ContextMenuArrayItem[]
+    local options = {}
+
+    for _, vehicle in ipairs(vehicles) do
+        ---@type VehicleProperties
+        local props = json.decode(vehicle.props)
+
+        local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
+
+        ---@type ContextMenuArrayItem
+        local option = {
+            title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
+            icon = GetClassIcon(class),
+            progress = class ~= 13 and props.fuelLevel,
+            colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
+            metadata = {
+                ---@diagnostic disable-next-line: assign-type-mismatch
+                { label = locale('status'), value = vehicle.state and locale('in_garage') or locale('out_garage') },
+                
+                ---@diagnostic disable-next-line: assign-type-mismatch
+                { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
+            },
+            args = { index, props },
+            onSelect = SpawnVehicle
+        }
+
+        table.insert(options, option)
+    end
+
+    lib.registerContext({
+        id = 'garage_vehicles',
+        title = society and locale('society_vehicles') or locale('player_vehicles'),
+        options = options
+    })
+
+    lib.showContext('garage_vehicles')
+end
+
+local function OpenGarage(index)
+    lib.registerContext({
+        id = 'garage_menu',
+        title = locale('garage_menu'),
+        options = {
+            {
+                title = locale('player_owned'),
+                description = locale('player_owned_desc'),
+                args = { index, false },
+                onSelect = OpenGarageVehicles
+            },
+            {
+                title = locale('society_owned'),
+                description = locale('society_owned_desc'),
+                args = { index, true },
+                onSelect = OpenGarageVehicles
+            },
+        }
+    })
+
+    lib.showContext('garage_menu')
+end
+
+local function RetrieveVehicle(index, props)
+    ---@type integer, VehicleProperties
+    local index, props in args
+    
+    lib.requestModel(props.model)
+    local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate)
+
+    if not success then
+        ShowNotification(locale('not_enough_money'), 'error')
+        return
+    end
+
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+
+    if vehicle ~= 0 then
+        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+    end
+end
+
+local function OpenImpoundVehicles(args)
+    local index, society in args
+    local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, society)
+    
+    ---@type ContextMenuArrayItem[]
+    local options = {}
+
+    for _, vehicle in ipairs(vehicles) do
+        ---@type VehicleProperties
+        local props = json.decode(vehicle.props)
+
+        local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
+
+        ---@type ContextMenuArrayItem
+        local option = {
+            title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
+            icon = GetClassIcon(class),
+            progress = class ~= 13 and props.fuelLevel,
+            colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
+            metadata = {
+                ---@diagnostic disable-next-line: assign-type-mismatch
+                { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
+            },
+            args = { index, props },
+            onSelect = RetrieveVehicle
+        }
+
+        table.insert(options, option)
+    end
+
+    lib.registerContext({
+        id = 'impound_vehicles',
+        title = society and locale('society_vehicles') or locale('player_vehicles'),
+        options = options
+    })
+
+    lib.showContext('impound_vehicles')
+end
+
+local function OpenImpound(index)
+    lib.registerContext({
+        id = 'impound_menu',
+        title = locale('impound_menu'),
+        options = {
+            {
+                title = locale('player_owned'),
+                description = locale('player_owned_desc'),
+                args = { index, false },
+                onSelect = OpenImpoundVehicles
+            },
+            {
+                title = locale('society_owned'),
+                description = locale('society_owned_desc'),
+                args = { index, true },
+                onSelect = OpenImpoundVehicles
+            },
+        }
+    })
+
+    lib.showContext('impound_menu')
+end
+
+local openKeybind = lib.addKeybind({
+    name = 'open_garage',
+    description = 'Open garage/impound',
+    defaultKey = 'E',
+    onPressed = function()
+        if zone.type == 'garage' then
+            OpenGarage(zone.index)
+        elseif zone.type == 'impound' then
+            OpenImpound(zone.index)
+        end
+    end
+})
+
+for index, data in ipairs(Config.Garages) do
+    if data.Position and data.PedPosition then
+        error('Position and PedPosition can\'t be defined at the same time!')
+    end
+    
+    if data.Position then
+        lib.zones.sphere({
+            coords = data.Position,
+            radius = Config.MaxDistance,
+            onEnter = function()
+                ShowUI(('[%s] - %s'):format(openKeybind.currentKey, locale('open_garage')))
+                zone = { type = 'garage', index = index }
+            end,
+            onExit = function()
+                if zone.type == 'garage' then
+                    HideUI()
+                    zone = nil
+                end
+            end
         })
-    end
-end
-
-function HideUI()
-    lib.hideTextUI()
-end
-
-RegisterKeyMapping('opengarage', 'Access garage', 'keyboard', 'e')
-RegisterKeyMapping('savevehicle', 'Save vehicle', 'keyboard', 'g')
-
-RegisterCommand('opengarage', function()
-    local playerPed = PlayerPedId()
-    if currentZone == nil or ESX.IsPlayerLoaded() == false or IsEntityDead(playerPed) then
-        return
-    end
-    if currentZone == 'open' then
-        lib.showContext('open_garage')
-    elseif currentZone == 'impound' then
-        lib.showContext('open_impound')
-    end
-end, false)
-
-RegisterCommand('savevehicle', function()
-    local playerPed = PlayerPedId()
-    if currentZone ~= 'save' or ESX.IsPlayerLoaded() == false or IsEntityDead(playerPed) then
-        return
-    end
-    local vehicle = GetVehiclePedIsIn(playerPed, false)
-    local props = ESX.Game.GetVehicleProperties(vehicle)
-    ESX.TriggerServerCallback('lunar_garage:saveVehicle', function(success) 
-        if success then
-            TaskLeaveVehicle(playerPed, vehicle, 0)
-            Wait(1000)
-            ESX.Game.DeleteVehicle(vehicle)
-            TriggerEvent(Config.Notify, _U('save_success'))
-        else
-            TriggerEvent(Config.Notify, _U('not_yours'))
+    elseif data.PedPosition then
+        if not data.Model then
+            warn('Invalid garage - missing Model, index: %s', index)
+            goto skip
         end
-    end, props)
-end, false)
 
-function SpawnVehicle(props)
-    local garage = Config.Garages[currentData]
-    ESX.Game.SpawnVehicle(props.model, vector3(garage.SpawnPosition.x, garage.SpawnPosition.y, garage.SpawnPosition.z), garage.SpawnPosition.w, function(vehicle)
-        if DoesEntityExist(vehicle) then
-            ESX.Game.SetVehicleProperties(vehicle, props)
-            TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-            TriggerServerEvent('lunar_garage:vehicleTakenOut', props.plate)
-        end
-    end)
-end
-
-function RetrieveVehicle(props)
-    local impound = Config.Impounds[currentData]
-    ESX.TriggerServerCallback('lunar_garage:returnVehicle', function(success) 
-        if success then
-            ESX.Game.SpawnVehicle(props.model, vector3(impound.SpawnPosition.x, impound.SpawnPosition.y, impound.SpawnPosition.z), impound.SpawnPosition.w, function(vehicle) 
-                if DoesEntityExist(vehicle) then
-                    ESX.Game.SetVehicleProperties(vehicle, props)
-                    TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-                end
-            end)
-        else
-            TriggerEvent(Config.Notify, _U('not_enough_money'))
-        end
-    end, props.plate)
-end
-
-Citizen.CreateThread(function()
-    for k,v in pairs(Config.Garages) do
-        --Implicitly visible if someone forgets to add it in config.lua
-        if v.Visible ~= false then
-            local blip = AddBlipForCoord(v.Position.x, v.Position.y, v.Position.z)
-            local info = Config.Blips[v.Type].Garage
-            SetBlipSprite(blip, info.Type)
-            SetBlipDisplay(blip, 4)
-            SetBlipScale(blip, info.Size)
-            SetBlipColour(blip, info.Color)
-            SetBlipAsShortRange(blip, true)
-
-            BeginTextCommandSetBlipName('STRING')
-            AddTextComponentSubstringPlayerName(info.Name)
-            EndTextCommandSetBlipName(blip)
-        end
-    end
-    for k,v in pairs(Config.Impounds) do
-        --Implicitly visible if someone forgets to add it in config.lua
-        if v.Visible ~= false then
-            local blip = AddBlipForCoord(v.Position.x, v.Position.y, v.Position.z)
-            local info = Config.Blips[v.Type].Impound
-            SetBlipSprite(blip, info.Type)
-            SetBlipDisplay(blip, 4)
-            SetBlipScale(blip, info.Size)
-            SetBlipColour(blip, info.Color)
-            SetBlipAsShortRange(blip, true)
-
-            BeginTextCommandSetBlipName('STRING')
-            AddTextComponentSubstringPlayerName(info.Name)
-            EndTextCommandSetBlipName(blip)
-        end
-    end
-    lib.registerContext({
-        id = 'open_garage',
-        title = _U('garage'),
-        options = {
+        Utils.CreatePed(data.PedPosition, data.Model, {
             {
-                title = _U('personal'),
-                args = { shared = false },
-                onSelect = OpenGarage
-            },
-            {
-                title = _U('society'),
-                args = { shared = true },
-                onSelect = OpenGarage
+                label = locale('open_garage'),
+                icon = 'warehouse',
+                args = index,
+                action = OpenGarage
             }
-        },
-        
-    })
-    lib.registerContext({
-        id = 'open_impound',
-        title = _U('impound'),
-        options = {
-            {
-                title = _U('personal'),
-                args = { shared = false },
-                onSelect = OpenImpound
-            },
-            {
-                title = _U('society'),
-                args = { shared = true },
-                onSelect = OpenImpound
-            }
-        },
-        
-    })
-end)
-
-function OpenGarage(args)
-    ESX.TriggerServerCallback('lunar_garage:getVehicles', function(vehicles) 
-        if #vehicles > 0 then
-            local elements = {}
-            for k,v in ipairs(vehicles) do
-                local props = json.decode(v.vehicle)
-                if IsModelInCdimage(props.model) then
-                    local label = GetLabelText(GetDisplayNameFromVehicleModel(props.model))
-                    if label == 'NULL' then 
-                        label = GetDisplayNameFromVehicleModel(props.model)
-                    end
-                    if v.stored == true or v.stored == 1 then
-                        table.insert(elements, {
-                            title = _U('vehicle', label),
-                            description = _U('license_plate', props.plate),
-                            metadata = { { label = 'Status', value = _U('in_garage') } },
-                            onSelect = SpawnVehicle,
-                            args = props,
-                        })
-                    else
-                        table.insert(elements, {
-                            title = _U('vehicle', label),
-                            description = _U('license_plate', props.plate),
-                            metadata = { { label = 'Status', value = _U('out_garage') } },
-                            onSelect = function(args)
-                                TriggerEvent(Config.Notify, _U('impounded'))
-                            end,
-                        })
-                    end
-                end
-            end
-            lib.registerContext({
-                id = 'garage',
-                title = _U('garage'),
-                options = elements,
-            })
-            lib.showContext('garage')
-        else
-            if not args.shared then
-                TriggerEvent(Config.Notify, _U('no_vehicles'))
-            else
-                TriggerEvent(Config.Notify, _U('no_society_vehicles'))
-            end
-        end
-    end, currentData, args.shared)
-end
-
-function OpenImpound(args)
-    ESX.TriggerServerCallback('lunar_garage:getImpoundedVehicles', function(vehicles) 
-        if #vehicles > 0 then
-            local elements = {}
-            for k,v in ipairs(vehicles) do
-                local props = json.decode(v.vehicle)
-                if IsModelInCdimage(props.model) then
-                    local label = GetLabelText(GetDisplayNameFromVehicleModel(props.model))
-                    if label == 'NULL' then 
-                        label = GetDisplayNameFromVehicleModel(props.model)
-                    end
-                    table.insert(elements, {
-                        title = _U('vehicle', label),
-                        description = _U('license_plate', props.plate),
-                        onSelect = RetrieveVehicle,
-                        args = props,
-                    })
-                end
-            end
-            lib.registerContext({
-                id = 'impound',
-                title = _U('impound'),
-                options = elements,
-            })
-            lib.showContext('impound')
-        else
-            if not args.shared then
-                TriggerEvent(Config.Notify, _U('no_impound_vehicles'))
-            else
-                TriggerEvent(Config.Notify, _U('no_society_impound_vehicles'))
-            end
-        end
-    end, currentData, args.shared)
-end
-
-Citizen.CreateThread(function()
-    while true do
-        Wait(500)
-        if ESX.IsPlayerLoaded() then
-            local playerPed = PlayerPedId()
-            for k,v in ipairs(Config.Garages) do
-                local dist = #(v.Position - GetEntityCoords(playerPed))
-                if dist < Config.MaxDistance and currentZone ~= 'open' and not IsPedInAnyVehicle(playerPed, false) then
-                    ShowUI(_U('open_prompt'), 'warehouse')
-                    currentZone = 'open'
-                    currentData = k
-                elseif dist > Config.MaxDistance and currentZone == 'open' and currentData == k then
-                    HideUI()
-                    currentZone = nil
-                    currentData = nil
-                end
-                if dist < Config.MaxDistance and currentZone ~= 'save' and IsPedInAnyVehicle(playerPed, false) then
-                    ShowUI(_U('save_prompt'), 'floppy-disk')
-                    currentZone = 'save'
-                    currentData = k
-                elseif dist > Config.MaxDistance and currentZone == 'save' and currentData == k then
-                    HideUI()
-                    currentZone = nil
-                    currentData = nil
-                end
-            end
-            for k,v in ipairs(Config.Impounds) do
-                local dist = #(v.Position - GetEntityCoords(playerPed))
-                if dist < Config.MaxDistance and currentZone ~= 'impound' and not IsPedInAnyVehicle(playerPed, false) then
-                    ShowUI(_U('impound_prompt'), 'warehouse')
-                    currentZone = 'impound'
-                    currentData = k
-                elseif dist > Config.MaxDistance and currentZone == 'impound' and currentData == k then
-                    HideUI()
-                    currentZone = nil
-                    currentData = nil
-                end
-            end
-        end
+        })
+    else
+        warn('Invalid garage - missing Position or PedPosition, index: %s', index)
     end
-end)
+
+    ::skip::
+end
