@@ -1,0 +1,15 @@
+{
+    "open_garage": "Open garage",
+    "vehicle_info": "Vehicle: %s \n Plate: %s",
+    "status": "Status",
+    "in_garage": "Inside garage",
+    "out_garage": "Outside of garage",
+    "fuel": "Fuel",
+    "no_fueltank": "No fuel tank",
+    "player_vehicles": "Personal vehicles",
+    "player_owned": "Personal garage",
+    "player_owned_desc": "Only vehicles that you own.",
+    "society_vehicles": "Society vehicles",
+    "society_owned": "Society garage",
+    "society_owned_desc": "Vehicles owned by your society."
+}
