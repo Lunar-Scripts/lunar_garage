@@ -7,9 +7,8 @@ author 'Lunar Scripts'
 description 'Garage system'
 version '1.0.0'
 
--- What to run
-escrow_ignore {
-    'config.lua'
+files {
+    'locales/*.json'
 }
 
 shared_scripts {
@@ -17,14 +16,16 @@ shared_scripts {
     '@es_extended/imports.lua',
     'config.lua'
 }
+
 client_scripts {
     '@es_extended/locale.lua',
-    'locales/*.lua',
+    'client/cl_edit.lua',
     'client/main.lua'
-} 
+}
+
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    '@es_extended/locale.lua',
+    'config/sv_config.lua',
     'locales/*.lua',
     'server/main.lua'
 } 
