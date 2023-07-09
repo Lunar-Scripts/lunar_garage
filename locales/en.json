@@ -7,9 +7,8 @@
     "fuel": "Fuel",
     "no_fueltank": "No fuel tank",
     "player_vehicles": "Personal vehicles",
-    "player_owned": "Personal garage",
-    "player_owned_desc": "Only vehicles that you own.",
+    "player_vehicles_desc": "Only vehicles that you own.",
     "society_vehicles": "Society vehicles",
-    "society_owned": "Society garage",
-    "society_owned_desc": "Vehicles owned by your society."
+    "society_vehicles_desc": "Vehicles owned by your society.",
+    "not_enough_money": "Not enough money"
 }
