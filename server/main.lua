@@ -1,89 +1,86 @@
-local recentVehicles = {}
+-- Used to store vehicles that have been taken out
+---@type table<string, number>
+local activeVehicles = {}
 
-ESX.RegisterServerCallback('lunar_garage:getVehicles', function(source, cb, garage, shared)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if shared then
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ?', { xPlayer.job.name, Config.Garages[garage].Type })
-        cb(vehicles)
+lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, society)
+    local player = Framework.GetPlayerFromId(source)
+    if not player then return end
+    
+    local garage = Config.Garages[index]
+
+    if society then
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ?', {
+            player:GetJob(), garage.Type
+        })
+
+        return vehicles
     else
-        print(xPlayer.identifier)
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and job is NULL', { xPlayer.identifier, Config.Garages[garage].Type })
-        cb(vehicles)
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and job is NULL', {
+            player:GetIdentifier(), garage.Type
+        })
+
+        return vehicles
     end
 end)
 
-RegisterNetEvent('lunar_garage:vehicleTakenOut')
-AddEventHandler('lunar_garage:vehicleTakenOut', function(plate)
-    local source = source
-    local xPlayer = ESX.GetPlayerFromId(source)
-    MySQL.update.await('UPDATE owned_vehicles SET stored = 0 WHERE plate = ? and (owner = ? or job = ?)', { plate, xPlayer.identifier, xPlayer.job.name })
-    LogToDiscord(source, _U('webhook_take') .. '\n' .. _U('license_plate', plate))
-end)
+lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, index, society)
+    local player = Framework.GetPlayerFromId(source)
+    if not player then return end
+    
+    local impound = Config.Impounds[index]
 
-ESX.RegisterServerCallback('lunar_garage:saveVehicle', function(source, cb, props)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local vehicle = MySQL.query.await('SELECT * FROM owned_vehicles WHERE plate = ? and (owner = ? or job = ?)', { props.plate, xPlayer.identifier, xPlayer.job.name })
-    if #vehicle == 0 then
-        cb(false)
-        return
-    end
-    if json.decode(vehicle[1].vehicle).model == props.model then
-        cb(true)
-        MySQL.update.await('UPDATE owned_vehicles SET vehicle = ?, stored = 1 WHERE plate = ?', { json.encode(props), props.plate })
-        LogToDiscord(source, _U('webhook_save') .. '\n' .. _U('license_plate', props.plate))
-        recentVehicles[props.plate] = nil
-    else
-        cb(false)
-        print('Cheater is trying to change vehicle hash, identifier: ' .. xPlayer.identifier)
-    end
-end)
+    if society then
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ? and stored = 0', {
+            player:GetJob(), impound.Type
+        })
 
-ESX.RegisterServerCallback('lunar_garage:getImpoundedVehicles', function(source, cb, garage, shared)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local vehicles
-    if shared then
-        vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ? and stored = 0', { xPlayer.job.name, Config.Impounds[garage].Type })
-    else
-        vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and stored = 0 and job is NULL', { xPlayer.identifier, Config.Impounds[garage].Type })
-    end
-    local impoundedVehicles = {}
-    for k,v in ipairs(vehicles) do
-        if recentVehicles[v.plate] == nil then
-            table.insert(impoundedVehicles, v)
+        local filtered = {}
+
+        for _, vehicle in vehicles do
+            local entity = activeVehicles[vehicle.plate]
+
+            if not entity then
+                table.insert(filtered, vehicle)
+            elseif GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+                DeleteEntity(entity)
+                activeVehicles[vehicle.plate] = nil
+                table.insert(filtered, vehicle)
+            end
         end
-    end
-    cb(impoundedVehicles)
-end)
 
-ESX.RegisterServerCallback('lunar_garage:returnVehicle', function(source, cb, plate)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if xPlayer.getAccount('money').money >= Config.ImpoundPrice then
-        xPlayer.removeAccountMoney('money', Config.ImpoundPrice)
-        cb(true)
-        LogToDiscord(source, _U('webhook_impound') .. '\n' .. _U('license_plate', plate))
-        recentVehicles[plate] = true
-        Citizen.SetTimeout(60000, function()
-            recentVehicles[plate] = nil
-        end)
+        return filtered
     else
-        cb(false)
+        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and job is NULL and stored = 0', {
+            player:GetIdentifier(), impound.Type
+        })
+
+        return vehicles
     end
 end)
 
-function LogToDiscord(source, message)
-    if Config.Webhook ~= 'WEBHOOK_HERE' then
-        local xPlayer = ESX.GetPlayerFromId(source)
-        local connect = {
-            {
-                ["color"] = "16768885",
-                ["title"] = GetPlayerName(source).." (".. xPlayer.identifier ..")",
-                ["description"] = message,
-                ["footer"] = {
-                ["text"] = os.date('%H:%M - %d. %m. %Y', os.time()),
-                ["icon_url"] = 'https://cdn.discordapp.com/attachments/793081015433560075/1048643072952647700/lunar.png',
-                },
-            }
-        }
-        PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "lunar_garage", embeds = connect}), { ['Content-Type'] = 'application/json' })
+lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, plate)
+    local player = Framework.GetPlayerFromId(source)
+    if not player then return end
+
+    local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ?', {
+        player:GetIdentifier(), player:GetJob(), plate
+    })
+
+    if vehicle then
+        local garage = Config.Garages[index]
+        local coords = garage.SpawnPosition
+        local model = json.decode(vehicle.vehicle).model
+        local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z, coords.w)
+
+        for seatIndex = -1, 6 do
+            local ped = GetPedInVehicleSeat(entity, seatIndex)
+            local type = GetEntityPopulationType(ped)
+
+            if type > 0 and type < 6 then
+                DeleteEntity(ped)
+            end
+        end
+
+        return NetworkGetNetworkIdFromEntity(entity)
     end
-end
+end)
