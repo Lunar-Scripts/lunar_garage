@@ -10,5 +10,8 @@
     "player_vehicles_desc": "Only vehicles that you own.",
     "society_vehicles": "Society vehicles",
     "society_vehicles_desc": "Vehicles owned by your society.",
-    "not_enough_money": "Not enough money"
+    "not_enough_money": "Not enough money",
+    "save_vehicle": "Save vehicle",
+    "not_driver": "You need to be a driver to save the vehicle.",
+    "not_your_vehicle": "You don't own this vehicle."
 }

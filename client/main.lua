@@ -1,3 +1,8 @@
+---@class Zone
+---@field type string
+---@field index integer
+
+---@type Zone?
 local zone
 
 local function SpawnVehicle(args)
@@ -118,6 +123,27 @@ local function OpenGarage(index)
     lib.showContext('garage_menu')
 end
 
+local function SaveVehicle()
+    if vehicle.seat ~= -1 then
+        ShowNotification(locale('not_driver'), 'error')
+        return
+    end
+
+    local props = lib.getVehicleProperties(cache.vehicle)
+
+    if not props then return end
+
+    local result = lib.callback.await('lunar_garage:saveVehicle', false, props)
+    
+    if result then
+        TaskLeaveAnyVehicle(cache.ped, 0, 0)
+        Wait(500)
+        DeleteEntity(cache.vehicle)
+    else
+        ShowNotification(locale('not_your_vehicle'), 'error')
+    end
+end
+
 local function RetrieveVehicle(index, props)
     ---@type integer, VehicleProperties
     local index, props in args
@@ -203,15 +229,28 @@ local function OpenImpound(index)
     lib.showContext('impound_menu')
 end
 
-local openKeybind = lib.addKeybind({
-    name = 'open_garage',
+local firstBind = lib.addKeybind({
+    name = 'garage_interact1',
     description = 'Open garage/impound',
     defaultKey = 'E',
     onPressed = function()
+        if not zone then return end
+
         if zone.type == 'garage' then
             OpenGarage(zone.index)
         elseif zone.type == 'impound' then
             OpenImpound(zone.index)
+        end
+    end
+})
+
+local secondBind = lib.addKeybind({
+    name = 'garage_interact2',
+    description = 'Save vehicle/Go into garage',
+    defaultKey = 'G',
+    onPressed = function()
+        if zone?.type == 'garage' and cache.vehicle then
+            SaveVehicle()
         end
     end
 })
@@ -226,16 +265,30 @@ for index, data in ipairs(Config.Garages) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                ShowUI(('[%s] - %s'):format(openKeybind.currentKey, locale('open_garage')))
+                if cache.vehicle then
+                    ShowUI(('[%s] - %s'):format(secondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
+                else
+                    ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_garage')), 'warehouse')
+                end
                 zone = { type = 'garage', index = index }
             end,
             onExit = function()
-                if zone.type == 'garage' then
+                if zone?.type == 'garage' then
                     HideUI()
                     zone = nil
                 end
             end
         })
+
+        lib.onCache('vehicle', function(vehicle)
+            if zone?.type ~= 'garage' then return end
+                
+            if vehicle then
+                ShowUI(('[%s] - %s'):format(secondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
+            else
+                ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_garage')), 'warehouse')
+            end
+        end)
     elseif data.PedPosition then
         if not data.Model then
             warn('Skipping garage - missing Model, index: %s', index)
@@ -267,11 +320,11 @@ for index, data in ipairs(Config.Impounds) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                ShowUI(('[%s] - %s'):format(openKeybind.currentKey, locale('open_impound')))
+                ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_impound')), 'warehouse')
                 zone = { type = 'impound', index = index }
             end,
             onExit = function()
-                if zone.type == 'impound' then
+                if zone?.type == 'impound' then
                     HideUI()
                     zone = nil
                 end
