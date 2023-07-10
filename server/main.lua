@@ -88,6 +88,22 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
     end
 end)
 
+lib.callback.register('lunar_garage:saveVehicle', function(source, props)
+    local player = Framework.GetPlayerFromId(source)
+    if not player or not props then return end
+
+    local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ?', {
+        player:GetIdentifier(), player:GetJob(), props.plate
+    })
+
+    if vehicle then
+        MySQL.update.await('UPDATE owned_vehicles SET stored = 1 WHERE plate = ?', { props.plate })
+        return true
+    end
+    
+    return false
+end)
+
 lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, plate)
     if activeVehicles[plate] then return end
 
