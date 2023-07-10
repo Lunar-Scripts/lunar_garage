@@ -79,7 +79,7 @@ local function OpenGarageVehicles(args)
             colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
             metadata = {
                 ---@diagnostic disable-next-line: assign-type-mismatch
-                { label = locale('status'), value = vehicle.state and locale('in_garage') or locale('out_garage') },
+                { label = locale('status'), value = vehicle.stored == 1 and locale('in_garage') or locale('out_garage') },
                 
                 ---@diagnostic disable-next-line: assign-type-mismatch
                 { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
