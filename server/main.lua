@@ -82,11 +82,15 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
             end
         end
 
+        activeVehicles[plate] = entity;
+
         return NetworkGetNetworkIdFromEntity(entity)
     end
 end)
 
 lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, plate)
+    if activeVehicles[plate] then return end
+
     local player = Framework.GetPlayerFromId(source)
     if not player then return end
 
