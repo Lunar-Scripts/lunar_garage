@@ -130,7 +130,11 @@ local function RetrieveVehicle(index, props)
         return
     end
 
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    local vehicle
+    repeat
+        vehicle = NetworkGetEntityFromNetworkId(netId)
+        Wait(0)
+    until vehicle ~= 0
 
     if vehicle ~= 0 then
         TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
