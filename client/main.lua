@@ -6,9 +6,15 @@ local function SpawnVehicle(args)
     
     lib.requestModel(props.model)
     local netId = lib.callback.await('lunar_garage:takeOutVehicle', false, index, props.plate)
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    
+    local vehicle
+    repeat
+        vehicle = NetworkGetEntityFromNetworkId(netId)
+        Wait(0)
+    until vehicle ~= 0
 
-    if vehicle ~= 0 then
+    if vehicle and vehicle ~= 0 then
+        lib.setVehicleProperties(vehicle, props)
         TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
     end
 end
@@ -56,7 +62,7 @@ local function OpenGarageVehicles(args)
 
     for _, vehicle in ipairs(vehicles) do
         ---@type VehicleProperties
-        local props = json.decode(vehicle.props)
+        local props = json.decode(vehicle.vehicle)
 
         local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
 
@@ -73,7 +79,7 @@ local function OpenGarageVehicles(args)
                 ---@diagnostic disable-next-line: assign-type-mismatch
                 { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
             },
-            args = { index, props },
+            args = { index = index, props = props },
             onSelect = SpawnVehicle
         }
 
@@ -97,19 +103,100 @@ local function OpenGarage(index)
             {
                 title = locale('player_vehicles'),
                 description = locale('player_vehicles_desc'),
-                args = { index, false },
+                args = { index = index, society = false },
                 onSelect = OpenGarageVehicles
             },
             {
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
-                args = { index, true },
+                args = { index = index, society = true },
                 onSelect = OpenGarageVehicles
             },
         }
     })
 
     lib.showContext('garage_menu')
+end
+
+local function RetrieveVehicle(index, props)
+    ---@type integer, VehicleProperties
+    local index, props in args
+    
+    lib.requestModel(props.model)
+    local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate)
+
+    if not success then
+        ShowNotification(locale('not_enough_money'), 'error')
+        return
+    end
+
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+
+    if vehicle ~= 0 then
+        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+    end
+end
+
+local function OpenImpoundVehicles(args)
+    local index, society in args
+    local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, index, society)
+    
+    ---@type ContextMenuArrayItem[]
+    local options = {}
+
+    for _, vehicle in ipairs(vehicles) do
+        ---@type VehicleProperties
+        local props = json.decode(vehicle.vehicle)
+
+        local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
+
+        ---@type ContextMenuArrayItem
+        local option = {
+            title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
+            icon = GetClassIcon(class),
+            progress = class ~= 13 and props.fuelLevel,
+            colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
+            metadata = {
+                ---@diagnostic disable-next-line: assign-type-mismatch
+                { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
+            },
+            args = { index = index, props = props },
+            onSelect = RetrieveVehicle
+        }
+
+        table.insert(options, option)
+    end
+
+    lib.registerContext({
+        id = 'impound_vehicles',
+        title = society and locale('society_vehicles') or locale('player_vehicles'),
+        options = options
+    })
+
+    lib.showContext('impound_vehicles')
+end
+
+local function OpenImpound(index)
+    lib.registerContext({
+        id = 'impound_menu',
+        title = locale('impound_menu'),
+        options = {
+            {
+                title = locale('player_vehicles'),
+                description = locale('player_vehicles_desc'),
+                args = { index = index, society = false },
+                onSelect = OpenImpoundVehicles
+            },
+            {
+                title = locale('society_vehicles'),
+                description = locale('society_vehicles_desc'),
+                args = { index = index, society = true },
+                onSelect = OpenImpoundVehicles
+            },
+        }
+    })
+
+    lib.showContext('impound_menu')
 end
 
 local openKeybind = lib.addKeybind({
@@ -155,7 +242,7 @@ for index, data in ipairs(Config.Garages) do
             {
                 label = locale('open_garage'),
                 icon = 'warehouse',
-                args = index,
+                args = { index = index, society = society },
                 action = OpenGarage
             }
         })
@@ -164,87 +251,6 @@ for index, data in ipairs(Config.Garages) do
     end
 
     ::skip::
-end
-
-local function RetrieveVehicle(index, props)
-    ---@type integer, VehicleProperties
-    local index, props in args
-    
-    lib.requestModel(props.model)
-    local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate)
-
-    if not success then
-        ShowNotification(locale('not_enough_money'), 'error')
-        return
-    end
-
-    local vehicle = NetworkGetEntityFromNetworkId(netId)
-
-    if vehicle ~= 0 then
-        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
-    end
-end
-
-local function OpenImpoundVehicles(args)
-    local index, society in args
-    local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, index, society)
-    
-    ---@type ContextMenuArrayItem[]
-    local options = {}
-
-    for _, vehicle in ipairs(vehicles) do
-        ---@type VehicleProperties
-        local props = json.decode(vehicle.props)
-
-        local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
-
-        ---@type ContextMenuArrayItem
-        local option = {
-            title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
-            icon = GetClassIcon(class),
-            progress = class ~= 13 and props.fuelLevel,
-            colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
-            metadata = {
-                ---@diagnostic disable-next-line: assign-type-mismatch
-                { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
-            },
-            args = { index, props },
-            onSelect = RetrieveVehicle
-        }
-
-        table.insert(options, option)
-    end
-
-    lib.registerContext({
-        id = 'impound_vehicles',
-        title = society and locale('society_vehicles') or locale('player_vehicles'),
-        options = options
-    })
-
-    lib.showContext('impound_vehicles')
-end
-
-local function OpenImpound(index)
-    lib.registerContext({
-        id = 'impound_menu',
-        title = locale('impound_menu'),
-        options = {
-            {
-                title = locale('player_vehicles'),
-                description = locale('player_vehicles_desc'),
-                args = { index, false },
-                onSelect = OpenImpoundVehicles
-            },
-            {
-                title = locale('society_vehicles'),
-                description = locale('society_vehicles_desc'),
-                args = { index, true },
-                onSelect = OpenImpoundVehicles
-            },
-        }
-    })
-
-    lib.showContext('impound_menu')
 end
 
 for index, data in ipairs(Config.Impounds) do
