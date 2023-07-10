@@ -62,13 +62,41 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
     local player = Framework.GetPlayerFromId(source)
     if not player then return end
 
+    local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ? and stored = 1', {
+        player:GetIdentifier(), player:GetJob(), plate
+    })
+
+    if vehicle then
+        MySQL.update.await('UPDATE owned_vehicles SET stored = 1 WHERE plate = ?', { plate })
+        local garage = Config.Garages[index]
+        local coords = garage.SpawnPosition
+        local model = json.decode(vehicle.vehicle).model
+        local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
+
+        for seatIndex = -1, 6 do
+            local ped = GetPedInVehicleSeat(entity, seatIndex)
+            local type = GetEntityPopulationType(ped)
+
+            if type > 0 and type < 6 then
+                DeleteEntity(ped)
+            end
+        end
+
+        return NetworkGetNetworkIdFromEntity(entity)
+    end
+end)
+
+lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, plate)
+    local player = Framework.GetPlayerFromId(source)
+    if not player then return end
+
     local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ?', {
         player:GetIdentifier(), player:GetJob(), plate
     })
 
     if vehicle then
-        local garage = Config.Garages[index]
-        local coords = garage.SpawnPosition
+        local impound = Config.Impounds[index]
+        local coords = impound.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
         local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
 
