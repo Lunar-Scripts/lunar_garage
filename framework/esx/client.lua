@@ -24,6 +24,7 @@ end)
 
 Framework.IsPlayerLoaded = sharedObject.IsPlayerLoaded
 
+---@diagnostic disable-next-line: duplicate-set-field
 Framework.GetJob = function()
     if not Framework.IsPlayerLoaded() then
         return false

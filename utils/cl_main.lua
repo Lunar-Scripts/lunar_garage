@@ -2,6 +2,7 @@ lib.locale()
 
 Utils = {}
 
+---@diagnostic disable-next-line: duplicate-set-field
 function Utils.GetTableSize(t)
     local count = 0
 
@@ -15,6 +16,7 @@ end
 ---@generic K, V
 ---@param t table<K, V>
 ---@return V, K
+---@diagnostic disable-next-line: duplicate-set-field
 function Utils.RandomFromTable(t)
     local index = math.random(1, #t)
     return t[index], index

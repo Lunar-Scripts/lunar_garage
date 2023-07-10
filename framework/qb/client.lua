@@ -7,6 +7,7 @@ function Framework.IsPlayerLoaded()
     return next(sharedObject.Functions.GetPlayerData()) ~= nil
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function Framework.GetJob()
     if not Framework.IsPlayerLoaded() then
         return false

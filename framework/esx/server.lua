@@ -5,7 +5,7 @@ local sharedObject = exports['es_extended']:getSharedObject()
 local player = {}
 local saved = {}
 
---Framework functions
+---@diagnostic disable-next-line: duplicate-set-field
 Framework.GetPlayerFromId = function(id)
     if saved[id] then return saved[id] end
     

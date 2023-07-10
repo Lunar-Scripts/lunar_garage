@@ -6,7 +6,7 @@ QBCore = sharedObject
 local player = {}
 local saved = {}
 
---Framework functions
+---@diagnostic disable-next-line: duplicate-set-field
 function Framework.GetPlayerFromId(id)
     if saved[id] then return saved[id] end
 
