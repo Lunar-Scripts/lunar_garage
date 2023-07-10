@@ -70,7 +70,7 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
         local garage = Config.Garages[index]
         local coords = garage.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
-        local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z, coords.w)
+        local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
 
         for seatIndex = -1, 6 do
             local ped = GetPedInVehicleSeat(entity, seatIndex)
