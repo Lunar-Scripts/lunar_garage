@@ -11,7 +11,7 @@ Queries = {
 local table
 if Framework.Name == 'es_extended' then
     table = 'owned_vehicles'
-    Queries.setVehicleProps = 'UPDATE %s SET props = ? WHERE plate = ?'
+    Queries.setVehicleProps = 'UPDATE %s SET vehicle = ? WHERE plate = ?'
 elseif Framework.Name == 'qb-core' then
     table = 'player_vehicles'
     Queries.setVehicleProps = 'UPDATE %s SET mods = ? WHERE plate = ?'
