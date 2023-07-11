@@ -29,5 +29,6 @@ server_scripts {
     'utils/sv_main.lua',
     'config/sv_config.lua',
     'locales/*.lua',
+    'server/db.lua',
     'server/main.lua'
 }
