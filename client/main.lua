@@ -67,7 +67,7 @@ local function OpenGarageVehicles(args)
 
     for _, vehicle in ipairs(vehicles) do
         ---@type VehicleProperties
-        local props = json.decode(vehicle.vehicle)
+        local props = json.decode(vehicle.mods or vehicle.vehicle)
 
         local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
 
@@ -176,7 +176,7 @@ local function OpenImpoundVehicles(args)
 
     for _, vehicle in ipairs(vehicles) do
         ---@type VehicleProperties
-        local props = json.decode(vehicle.vehicle)
+        local props = json.decode(vehicle.mods or vehicle.vehicle)
 
         local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
 

@@ -9,13 +9,13 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
     local garage = Config.Garages[index]
 
     if society then
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ?', {
+        local vehicles = MySQL.query.await(Queries.getGarageSociety, {
             player:GetJob(), garage.Type
         })
 
         return vehicles
     else
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and job is NULL', {
+        local vehicles = MySQL.query.await(Queries.getGarage, {
             player:GetIdentifier(), garage.Type
         })
 
@@ -30,7 +30,7 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
     local impound = Config.Impounds[index]
 
     if society then
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE job = ? and type = ? and stored = 0', {
+        local vehicles = MySQL.query.await(Queries.getImpoundSociety, {
             player:GetJob(), impound.Type
         })
 
@@ -50,11 +50,23 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
 
         return filtered
     else
-        local vehicles = MySQL.query.await('SELECT * FROM owned_vehicles WHERE owner = ? and type = ? and job is NULL and stored = 0', {
+        local vehicles = MySQL.query.await(Queries.getImpound, {
             player:GetIdentifier(), impound.Type
         })
 
-        return vehicles
+        for _, vehicle in vehicles do
+            local entity = activeVehicles[vehicle.plate]
+
+            if not entity then
+                table.insert(filtered, vehicle)
+            elseif GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+                DeleteEntity(entity)
+                activeVehicles[vehicle.plate] = nil
+                table.insert(filtered, vehicle)
+            end
+        end
+
+        return filtered
     end
 end)
 
@@ -62,12 +74,12 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
     local player = Framework.GetPlayerFromId(source)
     if not player then return end
 
-    local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ? and stored = 1', {
-        player:GetIdentifier(), player:GetJob(), plate
+    local vehicle = MySQL.single.await(Queries.getStoredVehicle, {
+        player:GetIdentifier(), player:GetJob(), plate, 1
     })
 
     if vehicle then
-        MySQL.update.await('UPDATE owned_vehicles SET stored = 1 WHERE plate = ?', { plate })
+        MySQL.update.await(Queries.setStoredVehicle, { 0, plate })
         local garage = Config.Garages[index]
         local coords = garage.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
@@ -92,12 +104,19 @@ lib.callback.register('lunar_garage:saveVehicle', function(source, props)
     local player = Framework.GetPlayerFromId(source)
     if not player or not props then return end
 
-    local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ?', {
+    local vehicle = MySQL.single.await(Queries.getVehicle, {
         player:GetIdentifier(), player:GetJob(), props.plate
     })
 
     if vehicle then
-        MySQL.update.await('UPDATE owned_vehicles SET stored = 1 WHERE plate = ?', { props.plate })
+        local oldProps = json.decode(vehicle.mods or vehicle.vehicle)
+
+        if props.model ~= oldProps.model then
+            return false
+        end
+
+        MySQL.update.await(Queries.setStoredVehicle, { 1, props.plate })
+        MySQL.update.await(Queries.setVehicleProps, { json.encode(props), props.plate })
         return true
     end
     
@@ -110,7 +129,7 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
     local player = Framework.GetPlayerFromId(source)
     if not player then return end
 
-    local vehicle = MySQL.single.await('SELECT * FROM owned_vehicles WHERE (owner = ? or job = ?) and plate = ?', {
+    local vehicle = MySQL.single.await(Queries.getVehicle, {
         player:GetIdentifier(), player:GetJob(), plate
     })
 
