@@ -13,5 +13,8 @@
     "not_enough_money": "Not enough money",
     "save_vehicle": "Save vehicle",
     "not_driver": "You need to be a driver to save the vehicle.",
-    "not_your_vehicle": "You don't own this vehicle."
+    "not_your_vehicle": "You don't own this vehicle.",
+    "open_impound": "Open impound",
+    "vehicle_saved": "Your vehicle has been saved",
+    "not_in_garage": "This vehicle isn't in the garage."
 }

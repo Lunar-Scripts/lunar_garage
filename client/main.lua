@@ -83,7 +83,9 @@ local function OpenGarageVehicles(args)
                 { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
             },
             args = { index = index, props = props },
-            onSelect = SpawnVehicle
+            onSelect = vehicle.stored == 1 and SpawnVehicle or function()
+                ShowNotification(locale('not_in_garage'), 'error')
+            end
         }
 
         table.insert(options, option)
@@ -135,8 +137,9 @@ local function SaveVehicle()
     
     if result then
         TaskLeaveAnyVehicle(cache.ped, 0, 0)
-        Wait(500)
+        Wait(1000)
         DeleteEntity(cache.vehicle)
+        ShowNotification('vehicle_saved', 'success')
     else
         ShowNotification(locale('not_your_vehicle'), 'error')
     end
