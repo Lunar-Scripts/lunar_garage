@@ -1,8 +1,8 @@
 Queries = {
-    getGarage = 'SELECT * FROM %s WHERE job = ? and type = ?',
-    getGarageSociety = 'SELECT * FROM %s WHERE owner = ? and type = ? and job is NULL',
-    getImpound = 'SELECT * FROM %s WHERE job = ? and type = ? and stored = 0',
-    getImpoundSociety = 'SELECT * FROM %s WHERE owner = ? and type = ? and stored = 0 and job is NULL',
+    getGarage = 'SELECT * FROM %s WHERE owner = ? and type = ? and job is NULL',
+    getGarageSociety = 'SELECT * FROM %s WHERE job = ? and type = ?',
+    getImpound = 'SELECT * FROM %s WHERE owner = ? and type = ? and stored = 0 and job is NULL',
+    getImpoundSociety = 'SELECT * FROM %s WHERE job = ? and type = ? and stored = 0',
     getStoredVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ? and stored = ?',
     setStoredVehicle = 'UPDATE %s SET stored = ? WHERE plate = ?',
     getVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ?',
