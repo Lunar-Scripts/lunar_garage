@@ -18,10 +18,8 @@ local function SpawnVehicle(args)
         Wait(0)
     until vehicle ~= 0
 
-    if vehicle and vehicle ~= 0 then
-        lib.setVehicleProperties(vehicle, props)
-        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
-    end
+    lib.setVehicleProperties(vehicle, props)
+    TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
 
 local function GetVehicleLabel(model)
@@ -162,9 +160,8 @@ local function RetrieveVehicle(args)
         Wait(0)
     until vehicle ~= 0
 
-    if vehicle ~= 0 then
-        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
-    end
+    lib.setVehicleProperties(vehicle, props)
+    TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
 
 local function OpenImpoundVehicles(args)
