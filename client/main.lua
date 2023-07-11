@@ -124,7 +124,7 @@ local function OpenGarage(index)
 end
 
 local function SaveVehicle()
-    if vehicle.seat ~= -1 then
+    if cache.seat ~= -1 then
         ShowNotification(locale('not_driver'), 'error')
         return
     end
