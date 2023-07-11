@@ -144,7 +144,7 @@ local function SaveVehicle()
     end
 end
 
-local function RetrieveVehicle(index, props)
+local function RetrieveVehicle(args)
     ---@type integer, VehicleProperties
     local index, props in args
     

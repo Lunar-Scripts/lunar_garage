@@ -36,7 +36,7 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
 
         local filtered = {}
 
-        for _, vehicle in vehicles do
+        for _, vehicle in ipairs(vehicles) do
             local entity = activeVehicles[vehicle.plate]
 
             if not entity then
@@ -54,7 +54,9 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
             player:GetIdentifier(), impound.Type
         })
 
-        for _, vehicle in vehicles do
+        local filtered = {}
+
+        for _, vehicle in ipairs(vehicles) do
             local entity = activeVehicles[vehicle.plate]
 
             if not entity then
@@ -134,6 +136,9 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
     })
 
     if vehicle then
+        if player:GetAccountMoney('money') < Config.ImpoundPrice then return false end
+        player:RemoveAccountMoney('money', Config.ImpoundPrice)
+
         local impound = Config.Impounds[index]
         local coords = impound.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
@@ -148,6 +153,8 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
             end
         end
 
-        return NetworkGetNetworkIdFromEntity(entity)
+        return true, NetworkGetNetworkIdFromEntity(entity)
     end
+
+    return false
 end)
