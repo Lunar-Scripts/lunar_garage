@@ -2,6 +2,7 @@
 ---@field type string
 ---@field index integer?
 ---@field point CPoint?
+---@field handler fun()?
 
 ---@type Zone?
 local zone
@@ -237,11 +238,13 @@ local function OpenImpound(index)
     })
 
     lib.showContext('impound_menu')
-end
+end 
 
----@param garage GarageData
-local function EnterInterior(garage)
-    if not garage.Interior then return end
+---@param index number
+local function EnterInterior(index)
+    local garage = Config.Garages[index]
+
+    if not garage?.Interior then return end
 
     local interior = Config.GarageInteriors[garage.Interior]
 
@@ -273,6 +276,7 @@ local function EnterInterior(garage)
                 lib.requestModel(props.model)
                 Framework.SpawnLocalVehicle(props.model, coords.xyz, coords.w, function(entity)
                     lib.setVehicleProperties(entity, props)
+                    FreezeEntityPosition(entity, true)
                     table.insert(entities, entity)
                 end)
                 spawned = true
@@ -302,11 +306,13 @@ local function EnterInterior(garage)
         end
     })
 
+    local inside = true
     local remove = point.remove
 
     -- Override remove function
     ---@diagnostic disable-next-line: redundant-parameter
     function point.remove(self)
+        inside = false
         DoScreenFadeOut(500)
 
         while not IsScreenFadedOut() do Wait(100) end
@@ -322,6 +328,34 @@ local function EnterInterior(garage)
         Wait(1000)
         DoScreenFadeIn(500)
     end
+
+    local function ChooseVehicle()
+        DoScreenFadeOut(500)
+        
+        while not IsScreenFadedOut() do Wait(100) end
+
+        point:remove()
+        DeleteEntity(cache.vehicle)
+        Wait(1000)
+        SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
+        
+        local props = lib.getVehicleProperties(cache.vehicle)
+
+        SpawnVehicle({ index, props })
+        DoScreenFadeIn(500)
+    end
+
+    CreateThread(function()
+        while inside do
+            if zone?.type ~= 'vehicle' and cache.vehicle then
+                ShowUI(locale('choose_vehicle'))
+                zone = { type = 'vehicle', handler = ChooseVehicle }
+            elseif zone?.type == 'vehicle' and not cache.vehicle then
+                HideUI()
+            end
+            Wait(500)
+        end
+    end)
 end
 
 FirstBind = lib.addKeybind({
@@ -351,7 +385,7 @@ SecondBind = lib.addKeybind({
             if cache.vehicle then
                 SaveVehicle()
             elseif garage.Interior then
-                EnterInterior(garage)
+                EnterInterior(zone.index)
             end
         end
     end
