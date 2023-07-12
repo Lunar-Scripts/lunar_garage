@@ -274,6 +274,8 @@ for index, data in ipairs(Config.Garages) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
+                if not Utils.HasJobs(data.Jobs) then return end
+
                 if cache.vehicle then
                     ShowUI(('[%s] - %s'):format(secondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
                 else
@@ -301,13 +303,14 @@ for index, data in ipairs(Config.Garages) do
     elseif data.PedPosition then
         if not data.Model then
             warn('Skipping garage - missing Model, index: %s', index)
-            goto skip
+            goto continue
         end
 
         Utils.CreatePed(data.PedPosition, data.Model, {
             {
                 label = locale('open_garage'),
                 icon = 'warehouse',
+                job = data.Jobs,
                 args = { index = index, society = society },
                 action = OpenGarage
             }
@@ -316,7 +319,7 @@ for index, data in ipairs(Config.Garages) do
         warn('Skipping garage - missing Position or PedPosition, index: %s', index)
     end
 
-    ::skip::
+    ::continue::
 end
 
 for index, data in ipairs(Config.Impounds) do
@@ -329,6 +332,8 @@ for index, data in ipairs(Config.Impounds) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
+                if not Utils.HasJobs(data.Jobs) then return end 
+
                 ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_impound')), 'warehouse')
                 zone = { type = 'impound', index = index }
             end,
@@ -342,13 +347,14 @@ for index, data in ipairs(Config.Impounds) do
     elseif data.PedPosition then
         if not data.Model then
             warn('Skipping impound - missing Model, index: %s', index)
-            goto skip
+            goto continue
         end
 
         Utils.CreatePed(data.PedPosition, data.Model, {
             {
                 label = locale('open_impound'),
                 icon = 'warehouse',
+                job = data.Jobs,
                 args = index,
                 action = OpenImpound
             }
@@ -357,5 +363,5 @@ for index, data in ipairs(Config.Impounds) do
         warn('Skipping impound - missing Position or PedPosition, index: %s', index)
     end
 
-    ::skip::
+    ::continue::
 end

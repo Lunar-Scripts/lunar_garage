@@ -141,3 +141,18 @@ function Utils.MakeEntityFaceCoords(entity1, p2)
     local heading = GetHeadingFromVector_2d(dx, dy)
     SetEntityHeading(entity1, heading)
 end
+
+---@param jobs string | string[]
+function Utils.HasJobs(jobs)
+    if type(job) == 'string' then
+        jobs = { jobs } ---@cast jobs string[]
+    end
+
+    for _, name in ipairs(jobs) do
+        if Framework.GetJob() ~= name then
+            return false
+        end
+    end
+
+    return true
+end
