@@ -12,12 +12,9 @@ local function SpawnVehicle(args)
     lib.requestModel(props.model)
     local netId = lib.callback.await('lunar_garage:takeOutVehicle', false, index, props.plate)
     
-    local vehicle
-    repeat
-        vehicle = NetworkGetEntityFromNetworkId(netId)
-        Wait(0)
-    until vehicle ~= 0
+    while not NetworkDoesEntityExistWithNetworkId(netId) do Wait(0) end
 
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
     lib.setVehicleProperties(vehicle, props)
     TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
@@ -131,7 +128,8 @@ local function SaveVehicle()
         return
     end
 
-    local props = lib.getVehicleProperties(cache.vehicle)
+    local vehicle = cache.vehicle
+    local props = lib.getVehicleProperties(vehicle)
 
     if not props then return end
 
@@ -140,7 +138,7 @@ local function SaveVehicle()
     if result then
         TaskLeaveAnyVehicle(cache.ped, 0, 0)
         Wait(1000)
-        DeleteEntity(cache.vehicle)
+        DeleteEntity(vehicle)
         ShowNotification(locale('vehicle_saved'), 'success')
     else
         ShowNotification(locale('not_your_vehicle'), 'error')
@@ -159,12 +157,9 @@ local function RetrieveVehicle(args)
         return
     end
 
-    local vehicle
-    repeat
-        vehicle = NetworkGetEntityFromNetworkId(netId)
-        Wait(0)
-    until vehicle ~= 0
+    while not NetworkDoesEntityExistWithNetworkId(netId) do Wait(0) end
 
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
     lib.setVehicleProperties(vehicle, props)
     TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
