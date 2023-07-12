@@ -61,7 +61,7 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
 
             if not entity then
                 table.insert(filtered, vehicle)
-            elseif GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+            elseif not DoesEntityExist(entity) or GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
                 DeleteEntity(entity)
                 activeVehicles[vehicle.plate] = nil
                 table.insert(filtered, vehicle)

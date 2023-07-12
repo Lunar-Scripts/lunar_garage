@@ -1,6 +1,7 @@
 ---@class Zone
 ---@field type string
----@field index integer
+---@field index integer?
+---@field point CPoint?
 
 ---@type Zone?
 local zone
@@ -238,7 +239,87 @@ local function OpenImpound(index)
     lib.showContext('impound_menu')
 end
 
-local firstBind = lib.addKeybind({
+---@param garage GarageData
+local function EnterInterior(garage)
+    if not garage.Interior then return end
+
+    local interior = Config.GarageInteriors[garage.Interior]
+
+    DoScreenFadeOut(500)
+
+    while not IsScreenFadedOut() do Wait(100) end
+
+    local lastCoords = cache.coords
+    SetEntityCoords(cache.ped, interior.Coords.x, interior.Coords.y, interior.Coords.z)
+
+    local vehicles = lib.callback.await('lunar_garage:enterInterior', false, garage.Type)
+    ---@type number[]
+    local entities = {}
+
+    local vehicleIndex = 1
+    for i = 1, #interior.Vehicles do
+        local coords = interior.Vehicles[i]
+        local spawned = false
+
+        repeat
+            local vehicle = vehicles[vehicleIndex]
+
+            if not vehicle then goto skip end
+
+            ---@type VehicleProperties
+            local props = json.decode(vehicle.vehicle or vehicle.mods)
+
+            if props?.model and IsModelValid(props.model) then
+                lib.requestModel(props.model)
+                Framework.SpawnLocalVehicle(props.model, coords.xyz, coords.w, function(entity)
+                    lib.setVehicleProperties(entity, props)
+                    table.insert(entities, entity)
+                end)
+                spawned = true
+            end
+            vehicleIndex += 1
+        until spawned
+    end
+
+    ::skip::
+
+    Wait(1000)
+    DoScreenFadeIn(500)
+    
+    while not IsScreenFadedIn() do Wait(100) end
+
+    if #vehicles > #interior.Vehicles then
+        ShowNotification(locale('too_many_vehicles'), 'error')
+    end
+
+    local point = lib.points.new(interior.Coords.xyz, 1.0, {
+        onEnter = function(self)
+            ShowUI(locale('exit_garage', FirstBind.currentKey), 'door-open')
+            zone = { type = 'exit', point = self }
+        end,
+        onExit = function()
+            HideUI()
+        end
+    })
+
+    -- Override remove function
+    function point.remove()
+        HideUI()
+        DoScreenFadeOut(500)
+
+        while not IsScreenFadedOut() do Wait(100) end
+
+        for _, entity in ipairs(entities) do
+            DeleteEntity(entity)
+        end
+
+        SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
+        Wait(1000)
+        DoScreenFadeIn(500)
+    end
+end
+
+FirstBind = lib.addKeybind({
     name = 'garage_interact1',
     description = 'Open garage/impound',
     defaultKey = 'E',
@@ -249,17 +330,24 @@ local firstBind = lib.addKeybind({
             OpenGarage(zone.index)
         elseif zone.type == 'impound' then
             OpenImpound(zone.index)
+        elseif zone.type == 'exit' then
+            zone.point:remove()
         end
     end
 })
 
-local secondBind = lib.addKeybind({
+SecondBind = lib.addKeybind({
     name = 'garage_interact2',
     description = 'Save vehicle/Go into garage',
     defaultKey = 'G',
     onPressed = function()
-        if zone?.type == 'garage' and cache.vehicle then
-            SaveVehicle()
+        if zone and zone.type == 'garage' then
+            local garage = Config.Garages[zone.index]
+            if cache.vehicle then
+                SaveVehicle()
+            elseif garage.Interior then
+                EnterInterior(garage)
+            end
         end
     end
 })
@@ -277,9 +365,17 @@ for index, data in ipairs(Config.Garages) do
                 if not Utils.HasJobs(data.Jobs) then return end
 
                 if cache.vehicle then
-                    ShowUI(('[%s] - %s'):format(secondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
+                    ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
                 else
-                    ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_garage')), 'warehouse')
+                    local prompt
+
+                    if data.Interior then
+                        prompt = ('[%s] - %s \n [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
+                    else
+                        prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
+                    end
+
+                    ShowUI(prompt, 'warehouse')
                 end
                 zone = { type = 'garage', index = index }
             end,
@@ -295,9 +391,9 @@ for index, data in ipairs(Config.Garages) do
             if zone?.type ~= 'garage' then return end
                 
             if vehicle then
-                ShowUI(('[%s] - %s'):format(secondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
+                ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
             else
-                ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_garage')), 'warehouse')
+                ShowUI(('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')), 'warehouse')
             end
         end)
     elseif data.PedPosition then
@@ -334,7 +430,7 @@ for index, data in ipairs(Config.Impounds) do
             onEnter = function()
                 if not Utils.HasJobs(data.Jobs) then return end 
 
-                ShowUI(('[%s] - %s'):format(firstBind.currentKey, locale('open_impound')), 'warehouse')
+                ShowUI(('[%s] - %s'):format(FirstBind.currentKey, locale('open_impound')), 'warehouse')
                 zone = { type = 'impound', index = index }
             end,
             onExit = function()

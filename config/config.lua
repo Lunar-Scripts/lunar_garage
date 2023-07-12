@@ -64,7 +64,10 @@ Config.Blips = {
 ---@field SpawnPosition vector4 The vehicle spawn position.
 ---@field Jobs? string | string[] Optionally limit to jobs.
 
----@type LocationData[]
+---@class GarageData : LocationData
+---@field Interior string? The interior name defined in Config.GarageInteriors
+
+---@type GarageData[]
 Config.Garages = {
     {
         Visible = true,
@@ -194,10 +197,80 @@ Config.Garages = {
     },
 }
 
+Config.GarageInteriors = {
+    ['small'] = {
+        -- The teleport coords
+        Coords = vector4(0.0, 0.0, 0.0, 0.0), 
+        -- The vehicle spot coords array
+        Vehicles = {
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0)
+        }
+    },
+    ['medium'] = {
+        -- The teleport coords
+        Coords = vector4(0.0, 0.0, 0.0, 0.0),
+        -- The vehicle spot coords array
+        Vehicles = {
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0)
+        }
+    },
+    ['large'] = {
+        -- The teleport coords
+        Coords = vector4(0.0, 0.0, 0.0, 0.0),
+        -- The vehicle spot coords array
+        Vehicles = {
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0),
+            vector4(0.0, 0.0, 0.0, 0.0)
+        }
+    },
+}
 
 Config.ImpoundPrice = 1000 --Price to return your vehicle.
 
----@type LocationData[]
+---@class ImpoundData : LocationData
+
+---@type ImpoundData[]
 Config.Impounds = {
     {
         Visible = true,

@@ -10,7 +10,8 @@ Queries = {
     getVehicleStrict = 'SELECT * FROM %s WHERE owner = ? and plate = ? and job is NULL',
     transferVehiclePlayer = 'UPDATE %s SET owner = ? WHERE plate = ?',
     transferVehicleSociety = 'UPDATE %s SET job = ? WHERE plate = ?',
-    withdrawVehicleSociety = 'UPDATE %s SET job = NULL WHERE plate = ?'
+    withdrawVehicleSociety = 'UPDATE %s SET job = NULL WHERE plate = ?',
+    getStoredGarage = 'SELECT * FROM %s WHERE owner = ? and type = ? and job is NULL and stored = 1'
 }
 
 local table
