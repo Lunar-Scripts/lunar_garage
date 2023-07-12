@@ -24,6 +24,7 @@
     "withdraw_society": "Withdraw from your society",
     "pick_player": "Player Selection",
     "player_id": "Target ID",
+    "player_too_far": "This player is too far.",
     "offer": "Vehicle Offer",
     "offer_content": "%s is wants to sell you %s for %s$",
     "offer_confirm": "Accept",
