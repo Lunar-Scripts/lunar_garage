@@ -1,4 +1,4 @@
----@param garage LocationData
+---@param garage GarageData
 local function CreateGarageBlip(garage)
     local data = Config.Blips[garage.Type]?.Garage
 
@@ -9,7 +9,7 @@ local function CreateGarageBlip(garage)
     end
 end
 
----@param impound LocationData
+---@param impound ImpoundData
 local function CreateImpoundBlip(impound)
     local data = Config.Blips[impound.Type]?.Impound
 
