@@ -4,21 +4,21 @@ lib.versionCheck('https://github.com/Lunar-Scripts/lunar_garage')
 Utils = {}
 local resourceName = GetCurrentResourceName()
 
----@param point1 vector3 | vector4 | string
----@param point2 vector3 | vector4 | string
+---@param point1 vector3 | vector4 | string | number
+---@param point2 vector3 | vector4 | string | number
 ---@param distance number?
 function Utils.DistanceCheck(point1, point2, distance)
     distance = distance or Config.InteractDistance
 
-    if type(point1) == 'string' then
+    if type(point1) == 'number' or type(point1) == 'string' then
         local ped = GetPlayerPed(point1)
-        
+
         if ped == 0 then return false end
 
         point1 = GetEntityCoords(ped)
     end
 
-    if type(point2) == 'string' then
+    if type(point2) == 'number' or type(point2) == 'string' then
         local ped = GetPlayerPed(point2)
 
         if ped == 0 then return false end

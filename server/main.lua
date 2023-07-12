@@ -106,7 +106,7 @@ lib.callback.register('lunar_garage:saveVehicle', function(source, props)
     local player = Framework.GetPlayerFromId(source)
     if not player then return end
 
-    local vehicle = MySQL.single.await(Queries.getVehicle, {
+    local vehicle = MySQL.single.await(Queries.getOwnedVehicle, {
         player:GetIdentifier(), player:GetJob(), props.plate
     })
     
@@ -131,7 +131,7 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
     local player = Framework.GetPlayerFromId(source)
     if not player then return end
 
-    local vehicle = MySQL.single.await(Queries.getVehicle, {
+    local vehicle = MySQL.single.await(Queries.getOwnedVehicle, {
         player:GetIdentifier(), player:GetJob(), plate
     })
 

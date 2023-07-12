@@ -5,7 +5,9 @@ Queries = {
     getImpoundSociety = 'SELECT * FROM %s WHERE job = ? and type = ? and stored = 0',
     getStoredVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ? and stored = ?',
     setStoredVehicle = 'UPDATE %s SET stored = ? WHERE plate = ?',
-    getVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ?',
+    getOwnedVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ?',
+    getVehicle = 'SELECT * FROM %s WHERE owner = ? and plate = ?',
+    getVehicleStrict = 'SELECT * FROM %s WHERE owner = ? and plate = ? and job is NULL',
     transferVehiclePlayer = 'UPDATE %s SET owner = ? WHERE plate = ?',
     transferVehicleSociety = 'UPDATE %s SET job = ? WHERE plate = ?',
     withdrawVehicleSociety = 'UPDATE %s SET job = NULL WHERE plate = ?'

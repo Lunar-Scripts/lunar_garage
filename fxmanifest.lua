@@ -20,7 +20,7 @@ client_scripts {
     'framework/**/client.lua',
     'utils/cl_main.lua',
     'config/cl_edit.lua',
-    'client/main.lua'
+    'client/*.lua'
 }
 
 server_scripts {
@@ -29,6 +29,5 @@ server_scripts {
     'utils/sv_main.lua',
     'config/sv_config.lua',
     'locales/*.lua',
-    'server/db.lua',
-    'server/main.lua'
+    'server/*.lua'
 }

@@ -1,16 +1,30 @@
 local function TransferToPlayer(source, plate, label)
+    local player = Framework.GetPlayerFromId(source)
+
+    if not player then return end
+
+    local vehicle = MySQL.single.await(Queries.getVehicleStrict, { player:GetIdentifier(), plate })
+
+    if not vehicle then
+        TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_not_yours'), 'error')
+        return
+    end
+
     local targetId, price = lib.callback.await('lunar_garage:getTargetPlayer', source)
 
-    if not targetId or not price or price < 0 then return end
+    if not targetId or source == targetId or not price or price < 0 then
+        TriggerClientEvent('lunar_garage:showNotification', source, locale('invalid_data'), 'error')
+        return
+    end
 
-    if Utils.DistanceCheck(source, targetId) > 10.0 then
+    if not Utils.DistanceCheck(source, targetId, 10.0) then
         TriggerClientEvent('lunar_garage:showNotification', source, locale('player_too_far'), 'error')
         return
     end
 
-    local player, target = Framework.GetPlayerFromId(source), Framework.GetPlayerFromId(targetId)
+    local target = Framework.GetPlayerFromId(targetId)
 
-    if not player or not target then return end
+    if not target then return end
 
     local name = ('%s %s'):format(player:GetFirstName(), player:GetLastName())
     local success = lib.callback.await('lunar_garage:getAgreement', targetId, price, label, name)
@@ -20,47 +34,61 @@ local function TransferToPlayer(source, plate, label)
     MySQL.update.await(Queries.transferVehiclePlayer, { target:GetIdentifier(), plate })
     player:RemoveItem(Config.Contract.Item, 1)
 
-    TriggerClientEvent('lunar_robbery:contractAnim', source, locale('progress_selling'))
+    TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_selling'))
     Wait(Config.Contract.Duration)
-    TriggerClientEvent('lunar_robbery:showNotification', source, locale('vehicle_sold'))
+    TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_sold'))
     Wait(500)
-    TriggerClientEvent('lunar_robbery:contractAnim', targetId, locale('progress_buying'))
+    TriggerClientEvent('lunar_garage:contractAnim', targetId, locale('progress_buying'))
     Wait(Config.Contract.Duration)
-    TriggerClientEvent('lunar_robbery:showNotification', targetId, locale('vehicle_bought'))
+    TriggerClientEvent('lunar_garage:showNotification', targetId, locale('vehicle_bought'))
 end
 
 local function TransferToSociety(source, plate)
-    local result = lib.callback.await('lunar_garage:societyPrompt', source, 'transfer')
-
-    if not result then return end
-
     local player = Framework.GetPlayerFromId(source)
 
     if not player then return end
+
+    local vehicle = MySQL.single.await(Queries.getVehicleStrict, { player:GetIdentifier(), plate })
+
+    if not vehicle then
+        TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_not_yours'), 'error')
+        return
+    end
+
+    local result = lib.callback.await('lunar_garage:societyPrompt', source, 'transfer')
+
+    if not result then return end
 
     MySQL.update.await(Queries.transferVehicleSociety, { player:GetJob(), plate })
     player:RemoveItem(Config.Contract.Item, 1)
 
-    TriggerClientEvent('lunar_robbery:contractAnim', source, locale('progress_transfering'))
+    TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_transfering'))
     Wait(Config.Contract.Duration)
-    TriggerClientEvent('lunar_robbery:showNotification', source, locale('vehicle_transfered'))
+    TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_transfered'))
 end
 
 local function WithdrawFromSociety(source, plate)
-    local result = lib.callback.await('lunar_garage:societyPrompt', source, 'transfer')
-
-    if not result then return end
-
     local player = Framework.GetPlayerFromId(source)
 
     if not player then return end
 
+    local vehicle = MySQL.single.await(Queries.getVehicle, { player:GetIdentifier(), plate })
+
+    if not vehicle then
+        TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_not_yours'), 'error')
+        return
+    end
+
+    local result = lib.callback.await('lunar_garage:societyPrompt', source, 'withdraw')
+
+    if not result then return end
+
     MySQL.update.await(Queries.withdrawVehicleSociety, { plate })
     player:RemoveItem(Config.Contract.Item, 1)
 
-    TriggerClientEvent('lunar_robbery:contractAnim', source, locale('progress_withdrawing'))
+    TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_withdrawing'))
     Wait(Config.Contract.Duration)
-    TriggerClientEvent('lunar_robbery:showNotification', source, locale('vehicle_withdraw'))
+    TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_withdrawn'))
 end
 
 Framework.RegisterUsableItem(Config.Contract.Item, function(source)
