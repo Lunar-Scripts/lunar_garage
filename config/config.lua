@@ -5,7 +5,7 @@ Config.MaxDistance = 10.0 -- Max interact distance
 
 ---@class BlipData
 ---@field Name string
----@field Type integer
+---@field Sprite integer
 ---@field Size number
 ---@field Color integer
 
@@ -14,13 +14,13 @@ Config.Blips = {
     ['car'] = {
         Garage = {
             Name = 'Garage',
-            Type = 357,
+            Sprite = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
             Name = 'Impound',
-            Type = 357,
+            Sprite = 357,
             Size = 0.5,
             Color = 3
         },
@@ -28,13 +28,13 @@ Config.Blips = {
     ['air'] = {
         Garage = {
             Name = 'Air Garage',
-            Type = 357,
+            Sprite = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
             Name = 'Air Impound',
-            Type = 357,
+            Sprite = 357,
             Size = 0.5,
             Color = 3
         },
@@ -42,13 +42,13 @@ Config.Blips = {
     ['boat'] = {
         Garage = {
             Name = 'Boat Garage',
-            Type = 357,
+            Sprite = 357,
             Size = 0.5,
             Color = 17
         },
         Impound = {
             Name = 'Boat Impound',
-            Type = 357,
+            Sprite = 357,
             Size = 0.5,
             Color = 3
         },
