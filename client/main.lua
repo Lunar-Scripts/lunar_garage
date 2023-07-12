@@ -302,9 +302,11 @@ local function EnterInterior(garage)
         end
     })
 
+    local remove = point.remove
+
     -- Override remove function
-    function point.remove()
-        HideUI()
+    ---@diagnostic disable-next-line: redundant-parameter
+    function point.remove(self)
         DoScreenFadeOut(500)
 
         while not IsScreenFadedOut() do Wait(100) end
@@ -312,6 +314,9 @@ local function EnterInterior(garage)
         for _, entity in ipairs(entities) do
             DeleteEntity(entity)
         end
+
+        ---@diagnostic disable-next-line: redundant-parameter
+        remove(self)
 
         SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
         Wait(1000)
