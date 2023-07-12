@@ -13,6 +13,7 @@ lib.callback.register('lunar_garage:enterInterior', function(source, type)
     SetRoutingBucketPopulationEnabled(bucketId, false)
 
     local vehicles = MySQL.query.await(Queries.getStoredGarage, { player:GetIdentifier(), type })
+    return vehicles
 end)
 
 RegisterNetEvent('lunar_garage:exitInterior', function()

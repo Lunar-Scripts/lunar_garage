@@ -65,7 +65,7 @@ Config.Blips = {
 ---@field Jobs? string | string[] Optionally limit to jobs.
 
 ---@class GarageData : LocationData
----@field Interior string? The interior name defined in Config.GarageInteriors
+---@field Interior string? The interior name.
 
 ---@type GarageData[]
 Config.Garages = {
