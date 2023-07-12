@@ -57,6 +57,11 @@ local function OpenGarageVehicles(args)
     local index, society in args
     local vehicles = lib.callback.await('lunar_garage:getOwnedVehicles', false, index, society)
     
+    if #vehicles == 0 then
+        ShowNotification(society and locale('no_owned_vehicles') or locale('no_society_vehicles'), 'error')
+        return
+    end
+
     ---@type ContextMenuArrayItem[]
     local options = {}
 
@@ -168,6 +173,11 @@ local function OpenImpoundVehicles(args)
     local index, society in args
     local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, index, society)
     
+    if #vehicles == 0 then
+        ShowNotification(locale('no_impounded_vehicles'), 'error')
+        return
+    end
+
     ---@type ContextMenuArrayItem[]
     local options = {}
 
