@@ -55,7 +55,7 @@ function Utils.LogToDiscord(source, xPlayer, message)
     local connect = {
         {
             ["color"] = "16768885",
-            ["title"] = GetPlayerName(source).." (".. xPlayer:GetIdentifier() ..")",
+            ["title"] = GetPlayerName(source) .. " (" .. xPlayer:GetIdentifier() .. ")",
             ["description"] = message,
             ["footer"] = {
                 ["text"] = os.date('%H:%M - %d. %m. %Y', os.time()),
@@ -64,5 +64,20 @@ function Utils.LogToDiscord(source, xPlayer, message)
         }
     }
     PerformHttpRequest(SvConfig.Webhook, function(err, text, headers) end,
-        'POST', json.encode({username = resourceName, embeds = connect}), { ['Content-Type'] = 'application/json' })
+        'POST', json.encode({ username = resourceName, embeds = connect }), { ['Content-Type'] = 'application/json' })
+end
+
+function Utils.CreateVehicle(model, coords)
+    local vehicle = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
+
+    for seatIndex = -1, 6 do
+        local ped = GetPedInVehicleSeat(vehicle, seatIndex)
+        local type = GetEntityPopulationType(ped)
+
+        if type > 0 and type < 6 then
+            DeleteEntity(ped)
+        end
+    end
+
+    return vehicle
 end

@@ -85,16 +85,7 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
         local garage = Config.Garages[index]
         local coords = garage.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
-        local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
-
-        for seatIndex = -1, 6 do
-            local ped = GetPedInVehicleSeat(entity, seatIndex)
-            local type = GetEntityPopulationType(ped)
-
-            if type > 0 and type < 6 then
-                DeleteEntity(ped)
-            end
-        end
+        local entity = Utils.CreateVehicle(model, coords)
 
         activeVehicles[plate] = entity;
 
@@ -142,16 +133,7 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
         local impound = Config.Impounds[index]
         local coords = impound.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
-        local entity = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
-
-        for seatIndex = -1, 6 do
-            local ped = GetPedInVehicleSeat(entity, seatIndex)
-            local type = GetEntityPopulationType(ped)
-
-            if type > 0 and type < 6 then
-                DeleteEntity(ped)
-            end
-        end
+        local entity = Utils.CreateVehicle(model, coords)
 
         return true, NetworkGetNetworkIdFromEntity(entity)
     end
