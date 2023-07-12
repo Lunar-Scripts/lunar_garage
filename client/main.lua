@@ -139,7 +139,7 @@ local function SaveVehicle()
         TaskLeaveAnyVehicle(cache.ped, 0, 0)
         Wait(1000)
         DeleteEntity(cache.vehicle)
-        ShowNotification('vehicle_saved', 'success')
+        ShowNotification(locale('vehicle_saved'), 'success')
     else
         ShowNotification(locale('not_your_vehicle'), 'error')
     end
