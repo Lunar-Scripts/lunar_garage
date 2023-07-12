@@ -362,7 +362,7 @@ for index, data in ipairs(Config.Garages) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                if not Utils.HasJobs(data.Jobs) then return end
+                if data.Jobs and not Utils.HasJobs(data.Jobs) then return end
 
                 if cache.vehicle then
                     ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
@@ -370,7 +370,7 @@ for index, data in ipairs(Config.Garages) do
                     local prompt
 
                     if data.Interior then
-                        prompt = ('[%s] - %s \n [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
+                        prompt = ('[%s] - %s  \n  [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
                     else
                         prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
                     end
@@ -393,7 +393,15 @@ for index, data in ipairs(Config.Garages) do
             if vehicle then
                 ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
             else
-                ShowUI(('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')), 'warehouse')
+                local prompt
+
+                if data.Interior then
+                    prompt = ('[%s] - %s  \n  [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
+                else
+                    prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
+                end
+
+                ShowUI(prompt, 'warehouse')
             end
         end)
     elseif data.PedPosition then
@@ -428,7 +436,7 @@ for index, data in ipairs(Config.Impounds) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                if not Utils.HasJobs(data.Jobs) then return end 
+                if data.Jobs and not Utils.HasJobs(data.Jobs) then return end 
 
                 ShowUI(('[%s] - %s'):format(FirstBind.currentKey, locale('open_impound')), 'warehouse')
                 zone = { type = 'impound', index = index }
