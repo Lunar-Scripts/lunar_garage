@@ -8,15 +8,17 @@ local saved = {}
 ---@diagnostic disable-next-line: duplicate-set-field
 Framework.GetPlayerFromId = function(id)
     if saved[id] then return saved[id] end
-    
+
     local player = setmetatable({}, { __index = player })
     player.xPlayer = sharedObject.GetPlayerFromId(id)
     if not player.xPlayer then return end
     player.source = id
-    
+
     saved[id] = player
     return player
 end
+
+Framework.RegisterUsableItem = sharedObject.RegisterUsableItem
 
 Framework.GetPlayers = sharedObject.GetExtendedPlayers
 

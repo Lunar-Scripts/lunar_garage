@@ -12,11 +12,17 @@ function Utils.DistanceCheck(point1, point2, distance)
 
     if type(point1) == 'string' then
         local ped = GetPlayerPed(point1)
+        
+        if ped == 0 then return false end
+
         point1 = GetEntityCoords(ped)
     end
 
     if type(point2) == 'string' then
         local ped = GetPlayerPed(point2)
+
+        if ped == 0 then return false end
+
         point2 = GetEntityCoords(ped)
     end
 

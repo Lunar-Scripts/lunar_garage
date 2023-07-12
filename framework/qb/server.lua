@@ -19,6 +19,8 @@ function Framework.GetPlayerFromId(id)
     return player
 end
 
+Framework.RegisterUsableItem = sharedObject.Functions.CreateUseableItem
+
 Framework.GetPlayers = sharedObject.Functions.GetQBPlayers
 
 local ox_inventory = GetResourceState('ox_inventory') == 'started'

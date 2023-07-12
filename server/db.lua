@@ -6,6 +6,9 @@ Queries = {
     getStoredVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ? and stored = ?',
     setStoredVehicle = 'UPDATE %s SET stored = ? WHERE plate = ?',
     getVehicle = 'SELECT * FROM %s WHERE (owner = ? or job = ?) and plate = ?',
+    transferVehiclePlayer = 'UPDATE %s SET owner = ? WHERE plate = ?',
+    transferVehicleSociety = 'UPDATE %s SET job = ? WHERE plate = ?',
+    withdrawVehicleSociety = 'UPDATE %s SET job = NULL WHERE plate = ?'
 }
 
 local table
@@ -21,4 +24,7 @@ end
 
 for key, query in pairs(Queries) do
     Queries[key] = query:format(table)
+    if Framework.Name == 'qb-core' then
+        Queries[key] = Queries[key]:gsub('owner', 'citizenid')
+    end
 end

@@ -22,7 +22,7 @@ local function SpawnVehicle(args)
     TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
 
-local function GetVehicleLabel(model)
+function GetVehicleLabel(model)
     local label = GetLabelText(GetDisplayNameFromVehicleModel(model))
     
     if label == 'NULL' then 
