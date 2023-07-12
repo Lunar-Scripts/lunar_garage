@@ -108,12 +108,14 @@ local function OpenGarage(index)
             {
                 title = locale('player_vehicles'),
                 description = locale('player_vehicles_desc'),
+                icon = 'user',
                 args = { index = index, society = false },
                 onSelect = OpenGarageVehicles
             },
             {
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
+                icon = 'users',
                 args = { index = index, society = true },
                 onSelect = OpenGarageVehicles
             },
@@ -214,12 +216,14 @@ local function OpenImpound(index)
             {
                 title = locale('player_vehicles'),
                 description = locale('player_vehicles_desc'),
+                icon = 'user',
                 args = { index = index, society = false },
                 onSelect = OpenImpoundVehicles
             },
             {
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
+                icon = 'users',
                 args = { index = index, society = true },
                 onSelect = OpenImpoundVehicles
             },
