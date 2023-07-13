@@ -267,7 +267,7 @@ lib.onCache('vehicle', function(vehicle)
 
     if not garage then return end
     
-    -- Update value manually, because it gets updated after the call of this function
+    -- Update value manually, because it gets updated after the call of onCache
     cache.vehicle = vehicle
     garagePrompt(currentGarageIndex, garage)
 end)

@@ -91,12 +91,17 @@ function EnterInterior(index)
 
         busy = true
         local vehicle = cache.vehicle
+        local props = lib.getVehicleProperties(vehicle)
+
+        if not props then return end
 
         DoScreenFadeOut(500)
         
         while not IsScreenFadedOut() do Wait(100) end
 
-        local props = lib.getVehicleProperties(vehicle)
+        for _, entity in ipairs(entities) do
+            DeleteEntity(entity)
+        end
         
         point:remove()
         RemoveEventHandler(eventData)
