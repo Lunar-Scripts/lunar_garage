@@ -233,8 +233,6 @@ local function openImpound(index)
     lib.showContext('impound_menu')
 end 
 
-local currentGarageIndex
-
 local function garagePrompt(index, data)
     if cache.vehicle then
         ShowUI(('[%s] - %s'):format(Binds.second.currentKey, locale('save_vehicle')), 'floppy-disk')
@@ -260,14 +258,18 @@ local function garagePrompt(index, data)
     end
 end
 
-lib.onCache('vehicle', function()
+local currentGarageIndex
+
+lib.onCache('vehicle', function(vehicle)
     if not currentGarageIndex then return end
 
     local garage = Config.Garages[currentGarageIndex]
 
     if not garage then return end
     
-    garagePrompt(currentGarageIndex, data)
+    -- Update value manually, because it gets updated after the call of this function
+    cache.vehicle = vehicle
+    garagePrompt(currentGarageIndex, garage)
 end)
 
 for index, data in ipairs(Config.Garages) do

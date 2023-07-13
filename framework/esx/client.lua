@@ -34,7 +34,7 @@ Framework.getJob = function()
 end
 
 Framework.hasItem = function(name)
-    local playerData = sharedObject.getPlayerData()
+    local playerData = sharedObject.GetPlayerData()
     for k,v in ipairs(playerData.inventory) do
         if v.name == name then
             return true

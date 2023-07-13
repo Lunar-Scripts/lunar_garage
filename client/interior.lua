@@ -18,6 +18,8 @@ function EnterInterior(index)
 
     local lastCoords = cache.coords
     SetEntityCoords(cache.ped, interior.Coords.x, interior.Coords.y, interior.Coords.z)
+    SetEntityHeading(cache.ped, interior.Coords.w)
+    SetGameplayCamRelativeHeading(0.0)
 
     local vehicles = lib.callback.await('lunar_garage:enterInterior', false, garage.Type)
     ---@type number[]
@@ -52,6 +54,7 @@ function EnterInterior(index)
 
                 spawned = true
             end
+
             vehicleIndex += 1
         until spawned
     end
@@ -84,16 +87,20 @@ function EnterInterior(index)
     end)
 
     chooseVehicle = function()
+        if busy then return end
+
         busy = true
+        local vehicle = cache.vehicle
+
         DoScreenFadeOut(500)
         
         while not IsScreenFadedOut() do Wait(100) end
 
-        local props = lib.getVehicleProperties(cache.vehicle)
+        local props = lib.getVehicleProperties(vehicle)
         
         point:remove()
         RemoveEventHandler(eventData)
-        DeleteEntity(cache.vehicle)
+        DeleteEntity(vehicle)
         TriggerServerEvent('lunar_garage:exitInterior')
         Wait(1000)
         SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
@@ -109,6 +116,8 @@ function EnterInterior(index)
         onEnter = function(self)
             ShowUI(locale('exit_garage', Binds.first.currentKey), 'door-open')
             Binds.first.addListener('exit_garage', function()
+                if busy then return end
+
                 busy = true
                 DoScreenFadeOut(500)
 
