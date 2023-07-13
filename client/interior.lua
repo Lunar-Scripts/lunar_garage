@@ -1,3 +1,6 @@
+-- This part of the script could've been written much better, if you have the time to do so, create a PR.
+-- TODO: Refactor
+
 local busy = false
 
 ---@param index integer The garage index
