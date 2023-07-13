@@ -22,7 +22,7 @@ function GetVehicleLabel(model)
     return label
 end
 
-local function GetClassIcon(class)
+local function getClassIcon(class)
     if class == 8 then
         return 'motorcycle'
     elseif class == 13 then
@@ -34,7 +34,7 @@ local function GetClassIcon(class)
     end
 end
 
-local function GetFuelBarColor(fuel)
+local function getFuelBarColor(fuel)
     if fuel > 75.0 then
         return 'lime'
     elseif fuel > 50.0 then
@@ -46,7 +46,7 @@ local function GetFuelBarColor(fuel)
     end
 end
 
-local function OpenGarageVehicles(args)
+local function openGarageVehicles(args)
     local index, society in args
     local vehicles = lib.callback.await('lunar_garage:getOwnedVehicles', false, index, society)
     
@@ -67,9 +67,9 @@ local function OpenGarageVehicles(args)
         ---@type ContextMenuArrayItem
         local option = {
             title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
-            icon = GetClassIcon(class),
+            icon = getClassIcon(class),
             progress = class ~= 13 and props.fuelLevel,
-            colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
+            colorScheme = class ~= 13 and getFuelBarColor(props.fuelLevel),
             metadata = {
                 ---@diagnostic disable-next-line: assign-type-mismatch
                 { label = locale('status'), value = vehicle.stored == 1 and locale('in_garage') or locale('out_garage') },
@@ -95,7 +95,7 @@ local function OpenGarageVehicles(args)
     lib.showContext('garage_vehicles')
 end
 
-local function OpenGarage(index)
+local function openGarage(index)
     lib.registerContext({
         id = 'garage_menu',
         title = locale('garage_menu'),
@@ -105,14 +105,14 @@ local function OpenGarage(index)
                 description = locale('player_vehicles_desc'),
                 icon = 'user',
                 args = { index = index, society = false },
-                onSelect = OpenGarageVehicles
+                onSelect = openGarageVehicles
             },
             {
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
                 icon = 'users',
                 args = { index = index, society = true },
-                onSelect = OpenGarageVehicles
+                onSelect = openGarageVehicles
             },
         }
     })
@@ -120,7 +120,7 @@ local function OpenGarage(index)
     lib.showContext('garage_menu')
 end
 
-local function SaveVehicle()
+local function saveVehicle()
     if cache.seat ~= -1 then
         ShowNotification(locale('not_driver'), 'error')
         return
@@ -143,7 +143,7 @@ local function SaveVehicle()
     end
 end
 
-local function RetrieveVehicle(args)
+local function retrieveVehicle(args)
     ---@type integer, VehicleProperties
     local index, props in args
     
@@ -164,7 +164,7 @@ local function RetrieveVehicle(args)
     TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
 
-local function OpenImpoundVehicles(args)
+local function openImpoundVehicles(args)
     local index, society in args
     local vehicles = lib.callback.await('lunar_garage:getImpoundedVehicles', false, index, society)
     
@@ -185,15 +185,15 @@ local function OpenImpoundVehicles(args)
         ---@type ContextMenuArrayItem
         local option = {
             title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
-            icon = GetClassIcon(class),
+            icon = getClassIcon(class),
             progress = class ~= 13 and props.fuelLevel,
-            colorScheme = class ~= 13 and GetFuelBarColor(props.fuelLevel),
+            colorScheme = class ~= 13 and getFuelBarColor(props.fuelLevel),
             metadata = {
                 ---@diagnostic disable-next-line: assign-type-mismatch
                 { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
             },
             args = { index = index, props = props },
-            onSelect = RetrieveVehicle
+            onSelect = retrieveVehicle
         }
 
         table.insert(options, option)
@@ -208,7 +208,7 @@ local function OpenImpoundVehicles(args)
     lib.showContext('impound_vehicles')
 end
 
-local function OpenImpound(index)
+local function openImpound(index)
     lib.registerContext({
         id = 'impound_menu',
         title = locale('impound_menu'),
@@ -218,14 +218,14 @@ local function OpenImpound(index)
                 description = locale('player_vehicles_desc'),
                 icon = 'user',
                 args = { index = index, society = false },
-                onSelect = OpenImpoundVehicles
+                onSelect = openImpoundVehicles
             },
             {
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
                 icon = 'users',
                 args = { index = index, society = true },
-                onSelect = OpenImpoundVehicles
+                onSelect = openImpoundVehicles
             },
         }
     })
@@ -235,35 +235,39 @@ end
 
 local currentGarageIndex
 
-lib.onCache('vehicle', function(vehicle)
+local function garagePrompt(index, data)
+    if cache.vehicle then
+        ShowUI(('[%s] - %s'):format(Binds.second.currentKey, locale('save_vehicle')), 'floppy-disk')
+        Binds.second.addListener('garage', function()
+            saveVehicle()
+        end)
+    else
+        local prompt
+
+        if data.Interior then
+            prompt = ('[%s] - %s  \n  [%s] - %s'):format(Binds.first.currentKey, locale('open_garage'), Binds.second.currentKey, locale('enter_interior'))
+        else
+            prompt = (('[%s] - %s'):format(Binds.first.currentKey, locale('open_garage')))
+        end
+
+        ShowUI(prompt, 'warehouse')
+        Binds.first.addListener('garage', function(self)
+            openGarage(index)
+        end)
+        Binds.second.addListener('garage', function(self)
+            EnterInterior(index)
+        end)
+    end
+end
+
+lib.onCache('vehicle', function()
     if not currentGarageIndex then return end
 
     local garage = Config.Garages[currentGarageIndex]
 
     if not garage then return end
     
-    if vehicle then
-        ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
-        SecondBind.addListener('garage', function()
-            SaveVehicle()
-        end)
-    else
-        local prompt
-
-        if garage.Interior then
-            prompt = ('[%s] - %s  \n  [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
-        else
-            prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
-        end
-
-        ShowUI(prompt, 'warehouse')
-        FirstBind.addListener('garage', function(self)
-            OpenGarage(currentGarageIndex)
-        end)
-        SecondBind.addListener('garage', function(self)
-            EnterInterior(currentGarageIndex)
-        end)
-    end
+    garagePrompt(currentGarageIndex, data)
 end)
 
 for index, data in ipairs(Config.Garages) do
@@ -276,37 +280,15 @@ for index, data in ipairs(Config.Garages) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                if data.Jobs and not Utils.HasJobs(data.Jobs) then return end
+                if data.Jobs and not Utils.hasJobs(data.Jobs) then return end
 
-                if cache.vehicle then
-                    ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
-                    SecondBind.addListener('garage', function()
-                        SaveVehicle()
-                    end)
-                else
-                    local prompt
-
-                    if data.Interior then
-                        prompt = ('[%s] - %s  \n  [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
-                    else
-                        prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
-                    end
-
-                    ShowUI(prompt, 'warehouse')
-                    FirstBind.addListener('garage', function(self)
-                        OpenGarage(index)
-                    end)
-                    SecondBind.addListener('garage', function(self)
-                        EnterInterior(index)
-                    end)
-                end
-
+                garagePrompt(index, data)
                 currentGarageIndex = index
             end,
             onExit = function()
                 HideUI()
-                FirstBind.removeListener('garage')
-                SecondBind.removeListener('garage')
+                Binds.first.removeListener('garage')
+                Binds.second.removeListener('garage')
                 currentGarageIndex = nil
             end
         })
@@ -316,13 +298,13 @@ for index, data in ipairs(Config.Garages) do
             goto continue
         end
 
-        Utils.CreatePed(data.PedPosition, data.Model, {
+        Utils.createPed(data.PedPosition, data.Model, {
             {
                 label = locale('open_garage'),
                 icon = 'warehouse',
                 job = data.Jobs,
                 args = index,
-                action = OpenGarage
+                action = openGarage
             }
         })
     else
@@ -342,16 +324,16 @@ for index, data in ipairs(Config.Impounds) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                if data.Jobs and not Utils.HasJobs(data.Jobs) then return end
+                if data.Jobs and not Utils.hasJobs(data.Jobs) then return end
 
-                ShowUI(('[%s] - %s'):format(FirstBind.currentKey, locale('open_impound')), 'warehouse')
-                FirstBind.addListener('impound', function(self)
-                    OpenImpound(index)
+                ShowUI(('[%s] - %s'):format(Binds.first.currentKey, locale('open_impound')), 'warehouse')
+                Binds.first.addListener('impound', function(self)
+                    openImpound(index)
                 end)
             end,
             onExit = function()
                 HideUI()
-                FirstBind.removeListener('impound')
+                Binds.first.removeListener('impound')
             end
         })
     elseif data.PedPosition then
@@ -360,13 +342,13 @@ for index, data in ipairs(Config.Impounds) do
             goto continue
         end
 
-        Utils.CreatePed(data.PedPosition, data.Model, {
+        Utils.createPed(data.PedPosition, data.Model, {
             {
                 label = locale('open_impound'),
                 icon = 'warehouse',
                 job = data.Jobs,
                 args = index,
-                action = OpenImpound
+                action = openImpound
             }
         })
     else

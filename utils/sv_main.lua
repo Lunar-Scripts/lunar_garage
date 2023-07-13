@@ -7,7 +7,7 @@ local resourceName = GetCurrentResourceName()
 ---@param point1 vector3 | vector4 | string | number
 ---@param point2 vector3 | vector4 | string | number
 ---@param distance number?
-function Utils.DistanceCheck(point1, point2, distance)
+function Utils.distanceCheck(point1, point2, distance)
     distance = distance or Config.InteractDistance
 
     if type(point1) == 'number' or type(point1) == 'string' then
@@ -30,7 +30,7 @@ function Utils.DistanceCheck(point1, point2, distance)
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Utils.GetTableSize(t)
+function Utils.getTableSize(t)
     local count = 0
 
 	for _,_ in pairs(t) do
@@ -44,12 +44,12 @@ end
 ---@param t table<K, V>
 ---@return V, K
 ---@diagnostic disable-next-line: duplicate-set-field
-function Utils.RandomFromTable(t)
+function Utils.randomFromTable(t)
     local index = math.random(1, #t)
     return t[index], index
 end
 
-function Utils.LogToDiscord(source, xPlayer, message)
+function Utils.logToDiscord(source, xPlayer, message)
     if SvConfig.Webhook == 'WEBHOOK_HERE' then return end
 
     local connect = {
@@ -67,7 +67,7 @@ function Utils.LogToDiscord(source, xPlayer, message)
         'POST', json.encode({ username = resourceName, embeds = connect }), { ['Content-Type'] = 'application/json' })
 end
 
-function Utils.CreateVehicle(model, coords)
+function Utils.createVehicle(model, coords)
     local vehicle = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
 
     for seatIndex = -1, 6 do

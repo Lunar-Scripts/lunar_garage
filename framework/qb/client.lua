@@ -1,31 +1,31 @@
 if GetResourceState('qb-core') ~= 'started' then return end
 
-Framework = { Name = 'qb-core' }
+Framework = { name = 'qb-core' }
 local sharedObject = exports['qb-core']:GetCoreObject()
 
-function Framework.IsPlayerLoaded()
+function Framework.isPlayerLoaded()
     return next(sharedObject.Functions.GetPlayerData()) ~= nil
 end
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Framework.GetJob()
-    if not Framework.IsPlayerLoaded() then
+function Framework.getJob()
+    if not Framework.isPlayerLoaded() then
         return false
     end
 
     return sharedObject.Functions.GetPlayerData().job.name
 end
 
-Framework.HasItem = sharedObject.Functions.HasItem
+Framework.hasItem = sharedObject.Functions.HasItem
 
-function Framework.SpawnVehicle(model, coords, heading, cb)
+function Framework.spawnVehicle(model, coords, heading, cb)
     sharedObject.Functions.SpawnVehicle(model, cb, vector4(coords.x, coords.y, coords.z, heading), true)
 end
 
-function Framework.SpawnLocalVehicle(model, coords, heading, cb)
+function Framework.spawnLocalVehicle(model, coords, heading, cb)
     sharedObject.Functions.SpawnVehicle(model, cb, vector4(coords.x, coords.y, coords.z, heading), false)
 end
 
-Framework.DeleteVehicle = sharedObject.Functions.DeleteVehicle
+Framework.deleteVehicle = sharedObject.Functions.DeleteVehicle
 
-Framework.GetPlayersInArea = sharedObject.Functions.GetPlayersFromCoords
+Framework.getPlayersInArea = sharedObject.Functions.GetPlayersFromCoords

@@ -1,12 +1,12 @@
 if GetResourceState('es_extended') ~= 'started' then return end
 
-Framework = { Name = 'es_extended' }
+Framework = { name = 'es_extended' }
 local sharedObject = exports['es_extended']:getSharedObject()
 local player = {}
 local saved = {}
 
 ---@diagnostic disable-next-line: duplicate-set-field
-Framework.GetPlayerFromId = function(id)
+Framework.getPlayerFromId = function(id)
     if saved[id] then return saved[id] end
 
     local player = setmetatable({}, { __index = player })
@@ -18,60 +18,60 @@ Framework.GetPlayerFromId = function(id)
     return player
 end
 
-Framework.RegisterUsableItem = sharedObject.RegisterUsableItem
+Framework.registerUsableItem = sharedObject.RegisterUsableItem
 
-Framework.GetPlayers = sharedObject.GetExtendedPlayers
+Framework.getPlayers = sharedObject.GetExtendedPlayers
 
-Framework.GetItemLabel = sharedObject.GetItemLabel
+Framework.getItemLabel = sharedObject.GetItemLabel
 
-function player:HasGroup(name)
+function player:hasGroup(name)
     return self.xPlayer.getGroup() == name
 end
 
-function player:HasOneOfGroups(groups)
+function player:hasOneOfGroups(groups)
     return groups[self.xPlayer.getGroup()] or false
 end
 
-function player:AddItem(name, count)
+function player:addItem(name, count)
     self.xPlayer.addInventoryItem(name, count)
 end
 
-function player:RemoveItem(name, count)
+function player:removeItem(name, count)
     self.xPlayer.removeInventoryItem(name, count)
 end
 
-function player:CanCarryItem(name, count)
+function player:canCarryItem(name, count)
     return self.xPlayer.canCarryItem(name, count)
 end
 
-function player:GetItemCount(name)
+function player:getItemCount(name)
     return self.xPlayer.getInventoryItem(name).count
 end
 
-function player:GetAccountMoney(account)
+function player:getAccountMoney(account)
     return self.xPlayer.getAccount(account).money
 end
 
-function player:AddAccountMoney(account, amount)
+function player:addAccountMoney(account, amount)
     self.xPlayer.addAccountMoney(account, amount)
 end
 
-function player:RemoveAccountMoney(account, amount)
+function player:removeAccountMoney(account, amount)
     self.xPlayer.removeAccountMoney(account, amount)
 end
 
-function player:GetJob()
+function player:getJob()
     return self.xPlayer.getJob().name
 end
 
-function player:GetIdentifier()
+function player:getIdentifier()
     return self.xPlayer.getIdentifier()
 end
 
-function player:GetFirstName()
+function player:getFirstName()
     return self.xPlayer.get('firstName')
 end
 
-function player:GetLastName()
+function player:getLastName()
     return self.xPlayer.get('lastName')
 end

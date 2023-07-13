@@ -1,13 +1,13 @@
 if GetResourceState('qb-core') ~= 'started' then return end
 
-Framework = { Name = 'qb-core' }
+Framework = { name = 'qb-core' }
 local sharedObject = exports['qb-core']:GetCoreObject()
 QBCore = sharedObject
 local player = {}
 local saved = {}
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Framework.GetPlayerFromId(id)
+function Framework.getPlayerFromId(id)
     if saved[id] then return saved[id] end
 
     local player = setmetatable({}, { __index = player })
@@ -19,24 +19,24 @@ function Framework.GetPlayerFromId(id)
     return player
 end
 
-Framework.RegisterUsableItem = sharedObject.Functions.CreateUseableItem
+Framework.registerUsableItem = sharedObject.Functions.CreateUseableItem
 
-Framework.GetPlayers = sharedObject.Functions.GetQBPlayers
+Framework.getPlayers = sharedObject.Functions.GetQBPlayers
 
 local ox_inventory = GetResourceState('ox_inventory') == 'started'
 
-function Framework.GetItemLabel(item)
+function Framework.getItemLabel(item)
     if ox_inventory then
         return exports.ox_inventory:Items()[item]?.label
     end
     return sharedObject.Shared.Items[item]?.label
 end
 
-function player:HasGroup(name)
+function player:hasGroup(name)
     return sharedObject.Functions.HasPermission(self.source, name) == name
 end
 
-function player:HasOneOfGroups(groups)
+function player:hasOneOfGroups(groups)
     for k,v in pairs(groups) do
         if sharedObject.Functions.HasPermission(self.source, k) then
             return true
@@ -46,23 +46,23 @@ function player:HasOneOfGroups(groups)
     return false
 end
 
-function player:AddItem(name, count)
+function player:addItem(name, count)
     self.QBPlayer.Functions.AddItem(name, count)
 end
 
-function player:RemoveItem(name, count)
+function player:removeItem(name, count)
     self.QBPlayer.Functions.RemoveItem(name, count)
 end
 
-function player:CanCarryItem(name, count)
+function player:canCarryItem(name, count)
     return true
 end
 
-function player:GetItemCount(name)
+function player:getItemCount(name)
     return self.QBPlayer.Functions.GetItemByName(name)?.amount or 0
 end
 
-function player:GetAccountMoney(account)
+function player:getAccountMoney(account)
     if account == 'money' then
         return self.QBPlayer.Functions.GetMoney('cash')
     else
@@ -70,7 +70,7 @@ function player:GetAccountMoney(account)
     end
 end
 
-function player:AddAccountMoney(account, amount)
+function player:addAccountMoney(account, amount)
     if account == 'money' then
         self.QBPlayer.Functions.AddMoney('cash', amount)
     else
@@ -78,7 +78,7 @@ function player:AddAccountMoney(account, amount)
     end
 end
 
-function player:RemoveAccountMoney(account, amount)
+function player:removeAccountMoney(account, amount)
     if account == 'money' then
         self.QBPlayer.Functions.RemoveMoney('cash', amount)
     else
@@ -86,18 +86,18 @@ function player:RemoveAccountMoney(account, amount)
     end
 end
 
-function player:GetJob()
+function player:getJob()
     return self.QBPlayer.PlayerData.job.name
 end
 
-function player:GetIdentifier()       
+function player:getIdentifier()       
     return self.QBPlayer.PlayerData.citizenid
 end
 
-function player:GetFirstName()
+function player:getFirstName()
     return self.QBPlayer.PlayerData.charinfo.firstname
 end
 
-function player:GetLastName()
+function player:getLastName()
     return self.QBPlayer.PlayerData.charinfo.lastname
 end

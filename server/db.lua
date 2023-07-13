@@ -15,10 +15,10 @@ Queries = {
 }
 
 local table
-if Framework.Name == 'es_extended' then
+if Framework.name == 'es_extended' then
     table = 'owned_vehicles'
     Queries.setVehicleProps = 'UPDATE %s SET vehicle = ? WHERE plate = ?'
-elseif Framework.Name == 'qb-core' then
+elseif Framework.name == 'qb-core' then
     table = 'player_vehicles'
     Queries.setVehicleProps = 'UPDATE %s SET mods = ? WHERE plate = ?'
 else
@@ -27,7 +27,7 @@ end
 
 for key, query in pairs(Queries) do
     Queries[key] = query:format(table)
-    if Framework.Name == 'qb-core' then
+    if Framework.name == 'qb-core' then
         Queries[key] = Queries[key]:gsub('owner', 'citizenid')
     end
 end

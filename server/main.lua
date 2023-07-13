@@ -3,20 +3,20 @@
 local activeVehicles = {}
 
 lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, society)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
     if not player then return end
     
     local garage = Config.Garages[index]
 
     if society then
         local vehicles = MySQL.query.await(Queries.getGarageSociety, {
-            player:GetJob(), garage.Type
+            player:getJob(), garage.Type
         })
 
         return vehicles
     else
         local vehicles = MySQL.query.await(Queries.getGarage, {
-            player:GetIdentifier(), garage.Type
+            player:getIdentifier(), garage.Type
         })
 
         return vehicles
@@ -24,14 +24,14 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
 end)
 
 lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, index, society)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
     if not player then return end
     
     local impound = Config.Impounds[index]
 
     if society then
         local vehicles = MySQL.query.await(Queries.getImpoundSociety, {
-            player:GetJob(), impound.Type
+            player:getJob(), impound.Type
         })
 
         local filtered = {}
@@ -51,7 +51,7 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
         return filtered
     else
         local vehicles = MySQL.query.await(Queries.getImpound, {
-            player:GetIdentifier(), impound.Type
+            player:getIdentifier(), impound.Type
         })
 
         local filtered = {}
@@ -73,11 +73,11 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
 end)
 
 lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, plate)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
     if not player then return end
 
     local vehicle = MySQL.single.await(Queries.getStoredVehicle, {
-        player:GetIdentifier(), player:GetJob(), plate, 1
+        player:getIdentifier(), player:getJob(), plate, 1
     })
 
     if vehicle then
@@ -85,7 +85,7 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
         local garage = Config.Garages[index]
         local coords = garage.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
-        local entity = Utils.CreateVehicle(model, coords)
+        local entity = Utils.createVehicle(model, coords)
 
         activeVehicles[plate] = entity;
 
@@ -94,11 +94,11 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
 end)
 
 lib.callback.register('lunar_garage:saveVehicle', function(source, props)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
     if not player then return end
 
     local vehicle = MySQL.single.await(Queries.getOwnedVehicle, {
-        player:GetIdentifier(), player:GetJob(), props.plate
+        player:getIdentifier(), player:getJob(), props.plate
     })
     
     if vehicle then
@@ -119,22 +119,22 @@ end)
 lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, plate)
     if activeVehicles[plate] then return end
 
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
     if not player then return end
 
     local vehicle = MySQL.single.await(Queries.getOwnedVehicle, {
-        player:GetIdentifier(), player:GetJob(), plate
+        player:getIdentifier(), player:getJob(), plate
     })
 
     if vehicle then
-        if player:GetAccountMoney('money') < Config.ImpoundPrice then return false end
+        if player:getAccountMoney('money') < Config.ImpoundPrice then return false end
 
-        player:RemoveAccountMoney('money', Config.ImpoundPrice)
+        player:removeAccountMoney('money', Config.ImpoundPrice)
 
         local impound = Config.Impounds[index]
         local coords = impound.SpawnPosition
         local model = json.decode(vehicle.vehicle).model
-        local entity = Utils.CreateVehicle(model, coords)
+        local entity = Utils.createVehicle(model, coords)
 
         return true, NetworkGetNetworkIdFromEntity(entity)
     end

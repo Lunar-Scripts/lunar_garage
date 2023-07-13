@@ -38,7 +38,7 @@ function EnterInterior(index)
 
             if props?.model and IsModelValid(props.model) then
                 lib.requestModel(props.model)
-                Framework.SpawnLocalVehicle(props.model, coords.xyz, coords.w, function(entity)
+                Framework.spawnLocalVehicle(props.model, coords.xyz, coords.w, function(entity)
                     lib.setVehicleProperties(entity, props)
                     
                     for _ = 1, 10 do
@@ -75,11 +75,11 @@ function EnterInterior(index)
     -- Add the event manually instead of using lib.onCache so we can remove it later
     local eventData = AddEventHandler('ox_lib:cache:vehicle', function(vehicle)
         if vehicle then
-            ShowUI(locale('choose_vehicle', FirstBind.currentKey))
-            FirstBind.addListener('choose_vehicle', chooseVehicle)
+            ShowUI(locale('choose_vehicle', Binds.first.currentKey))
+            Binds.first.addListener('choose_vehicle', chooseVehicle)
         else
             HideUI()
-            FirstBind.removeListener('choose_vehicle')
+            Binds.first.removeListener('choose_vehicle')
         end
     end)
 
@@ -107,8 +107,8 @@ function EnterInterior(index)
 
     point = lib.points.new(interior.Coords.xyz, 1.0, {
         onEnter = function(self)
-            ShowUI(locale('exit_garage', FirstBind.currentKey), 'door-open')
-            FirstBind.addListener('exit_garage', function()
+            ShowUI(locale('exit_garage', Binds.first.currentKey), 'door-open')
+            Binds.first.addListener('exit_garage', function()
                 busy = true
                 DoScreenFadeOut(500)
 
@@ -130,7 +130,7 @@ function EnterInterior(index)
         end,
         onExit = function()
             HideUI()
-            FirstBind.removeListener('exit_garage')
+            Binds.first.removeListener('exit_garage')
         end
     })
 end

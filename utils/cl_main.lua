@@ -3,7 +3,7 @@ lib.locale()
 Utils = {}
 
 ---@diagnostic disable-next-line: duplicate-set-field
-function Utils.GetTableSize(t)
+function Utils.getTableSize(t)
     local count = 0
 
 	for _,_ in pairs(t) do
@@ -17,7 +17,7 @@ end
 ---@param t table<K, V>
 ---@return V, K
 ---@diagnostic disable-next-line: duplicate-set-field
-function Utils.RandomFromTable(t)
+function Utils.randomFromTable(t)
     local index = math.random(1, #t)
     return t[index], index
 end
@@ -28,7 +28,7 @@ local scenarios = {
     'WORLD_HUMAN_SMOKING'
 }
 
-function Utils.CreatePed(coords, model, options)
+function Utils.createPed(coords, model, options)
     -- Convert action to qtarget
     if options then
         for _, option in pairs(options) do
@@ -50,7 +50,7 @@ function Utils.CreatePed(coords, model, options)
             SetEntityInvincible(ped, true)
             FreezeEntityPosition(ped, true)
             SetBlockingOfNonTemporaryEvents(ped, true)
-            TaskStartScenarioInPlace(ped, Utils.RandomFromTable(scenarios))
+            TaskStartScenarioInPlace(ped, Utils.randomFromTable(scenarios))
             if options then
                 local name = ('garage_ped_%s'):format(ped)
 
@@ -74,13 +74,13 @@ end
 
 ---@param coords vector3 | vector4
 ---@param distance number
-function Utils.DistanceWait(coords, distance)
+function Utils.distanceWait(coords, distance)
     while #(GetEntityCoords(cache.ped) - coords.xyz) > distance do
         Wait(200)
     end
 end
 
-function Utils.CreateBlip(coords, text, sprite, scale, color)
+function Utils.createBlip(coords, text, sprite, scale, color)
     local blip = AddBlipForCoord(coords.x, coords.y)
 
     SetBlipSprite (blip, sprite)
@@ -95,7 +95,7 @@ function Utils.CreateBlip(coords, text, sprite, scale, color)
     return blip
 end
 
-function Utils.CreateRadiusBlip(coords, text, scale, color)
+function Utils.createRadiusBlip(coords, text, scale, color)
     local blip = AddBlipForRadius(coords.x, coords.y, coords.z, scale)
 
     SetBlipDisplay(blip, 4)
@@ -106,7 +106,7 @@ function Utils.CreateRadiusBlip(coords, text, scale, color)
     return blip
 end
 
-function Utils.CreateEntityBlip(entity, text, sprite, scale, color)
+function Utils.createEntityBlip(entity, text, sprite, scale, color)
     local blip = AddBlipForEntity(entity)
 
     SetBlipSprite (blip, sprite)
@@ -121,7 +121,7 @@ function Utils.CreateEntityBlip(entity, text, sprite, scale, color)
     return blip
 end
 
-function Utils.MakeEntityFaceEntity(entity1, entity2)
+function Utils.makeEntityFaceEntity(entity1, entity2)
     local p1 = GetEntityCoords(entity1, true)
     local p2 = GetEntityCoords(entity2, true)
 
@@ -132,7 +132,7 @@ function Utils.MakeEntityFaceEntity(entity1, entity2)
     SetEntityHeading(entity1, heading)
 end
 
-function Utils.MakeEntityFaceCoords(entity1, p2)
+function Utils.makeEntityFaceCoords(entity1, p2)
     local p1 = GetEntityCoords(entity1, true)
 
     local dx = p2.x - p1.x
@@ -143,13 +143,13 @@ function Utils.MakeEntityFaceCoords(entity1, p2)
 end
 
 ---@param jobs string | string[]
-function Utils.HasJobs(jobs)
+function Utils.hasJobs(jobs)
     if type(jobs) == 'string' then
         jobs = { jobs } ---@cast jobs string[]
     end
 
     for _, name in ipairs(jobs) do
-        if Framework.GetJob() ~= name then
+        if Framework.getJob() ~= name then
             return false
         end
     end
@@ -172,7 +172,7 @@ end
 -- A wrapper around lib.addKeybind with extra functions.
 ---@param data KeybindData
 ---@return Keybind
-function Utils.AddKeybind(data)
+function Utils.addKeybind(data)
     local bind = lib.addKeybind(data --[[@as KeybindProps]]) 
 
     local listeners = {}

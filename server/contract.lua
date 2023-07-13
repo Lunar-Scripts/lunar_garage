@@ -1,9 +1,9 @@
 local function TransferToPlayer(source, plate, label)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
 
     if not player then return end
 
-    local vehicle = MySQL.single.await(Queries.getVehicleStrict, { player:GetIdentifier(), plate })
+    local vehicle = MySQL.single.await(Queries.getVehicleStrict, { player:getIdentifier(), plate })
 
     if not vehicle then
         TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_not_yours'), 'error')
@@ -17,22 +17,22 @@ local function TransferToPlayer(source, plate, label)
         return
     end
 
-    if not Utils.DistanceCheck(source, targetId, 10.0) then
+    if not Utils.distanceCheck(source, targetId, 10.0) then
         TriggerClientEvent('lunar_garage:showNotification', source, locale('player_too_far'), 'error')
         return
     end
 
-    local target = Framework.GetPlayerFromId(targetId)
+    local target = Framework.getPlayerFromId(targetId)
 
     if not target then return end
 
-    local name = ('%s %s'):format(player:GetFirstName(), player:GetLastName())
+    local name = ('%s %s'):format(player:getFirstName(), player:getLastName())
     local success = lib.callback.await('lunar_garage:getAgreement', targetId, price, label, name)
 
     if not success then return end
 
-    MySQL.update.await(Queries.transferVehiclePlayer, { target:GetIdentifier(), plate })
-    player:RemoveItem(Config.Contract.Item, 1)
+    MySQL.update.await(Queries.transferVehiclePlayer, { target:getIdentifier(), plate })
+    player:removeItem(Config.Contract.Item, 1)
 
     TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_selling'))
     Wait(Config.Contract.Duration)
@@ -44,11 +44,11 @@ local function TransferToPlayer(source, plate, label)
 end
 
 local function TransferToSociety(source, plate)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
 
     if not player then return end
 
-    local vehicle = MySQL.single.await(Queries.getVehicleStrict, { player:GetIdentifier(), plate })
+    local vehicle = MySQL.single.await(Queries.getVehicleStrict, { player:getIdentifier(), plate })
 
     if not vehicle then
         TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_not_yours'), 'error')
@@ -59,8 +59,8 @@ local function TransferToSociety(source, plate)
 
     if not result then return end
 
-    MySQL.update.await(Queries.transferVehicleSociety, { player:GetJob(), plate })
-    player:RemoveItem(Config.Contract.Item, 1)
+    MySQL.update.await(Queries.transferVehicleSociety, { player:getJob(), plate })
+    player:removeItem(Config.Contract.Item, 1)
 
     TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_transfering'))
     Wait(Config.Contract.Duration)
@@ -68,11 +68,11 @@ local function TransferToSociety(source, plate)
 end
 
 local function WithdrawFromSociety(source, plate)
-    local player = Framework.GetPlayerFromId(source)
+    local player = Framework.getPlayerFromId(source)
 
     if not player then return end
 
-    local vehicle = MySQL.single.await(Queries.getVehicle, { player:GetIdentifier(), plate })
+    local vehicle = MySQL.single.await(Queries.getVehicle, { player:getIdentifier(), plate })
 
     if not vehicle then
         TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_not_yours'), 'error')
@@ -84,14 +84,14 @@ local function WithdrawFromSociety(source, plate)
     if not result then return end
 
     MySQL.update.await(Queries.withdrawVehicleSociety, { plate })
-    player:RemoveItem(Config.Contract.Item, 1)
+    player:removeItem(Config.Contract.Item, 1)
 
     TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_withdrawing'))
     Wait(Config.Contract.Duration)
     TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_withdrawn'))
 end
 
-Framework.RegisterUsableItem(Config.Contract.Item, function(source)
+Framework.registerUsableItem(Config.Contract.Item, function(source)
     local option, plate, label = lib.callback.await('lunar_garage:getContractOption', source)
 
     if not option or not plate then return end
