@@ -23,6 +23,7 @@
     "not_in_garage": "This vehicle isn't in the garage.",
     "too_many_vehicles": "There wasn't enough space for all of your stored vehicles.",
     "exit_garage": "[%s] - Exit garage",
+    "choose_vehicle": "[%s] - Choose vehicle",
 
     "contract": "Vehicle contract",
     "transfer_player": "Sell to player",

@@ -144,7 +144,7 @@ end
 
 ---@param jobs string | string[]
 function Utils.HasJobs(jobs)
-    if type(job) == 'string' then
+    if type(jobs) == 'string' then
         jobs = { jobs } ---@cast jobs string[]
     end
 
@@ -155,4 +155,45 @@ function Utils.HasJobs(jobs)
     end
 
     return true
+end
+
+---@class KeybindData
+---@field name string
+---@field description string
+---@field defaultMapper? string (see: https://docs.fivem.net/docs/game-references/input-mapper-parameter-ids/)
+---@field defaultKey? string
+---@field disabled? boolean
+---@field disable? fun(self: CKeybind, toggle: boolean)
+
+---@class Keybind : CKeybind
+---@field addListener fun(name: string, cb: fun(self: CKeybind))
+---@field removeListener fun(name: string)
+
+-- A wrapper around lib.addKeybind with extra functions.
+---@param data KeybindData
+---@return Keybind
+function Utils.AddKeybind(data)
+    local bind = lib.addKeybind(data --[[@as KeybindProps]]) 
+
+    local listeners = {}
+
+    function bind.addListener(name, cb)
+        listeners[name] = function(self)
+            CreateThread(function()
+                cb(self)
+            end)
+        end
+    end
+
+    function bind.removeListener(name)
+        listeners[name] = nil
+    end
+
+    function bind.onReleased(self)
+        for _, cb in pairs(listeners) do
+            cb()
+        end
+    end
+
+    return bind --[[@as Keybind]]
 end

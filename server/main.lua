@@ -128,6 +128,7 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
 
     if vehicle then
         if player:GetAccountMoney('money') < Config.ImpoundPrice then return false end
+
         player:RemoveAccountMoney('money', Config.ImpoundPrice)
 
         local impound = Config.Impounds[index]

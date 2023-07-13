@@ -159,6 +159,8 @@ local function RetrieveVehicle(args)
     lib.requestModel(props.model)
     local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate)
 
+    print(netId)
+
     if not success then
         ShowNotification(locale('not_enough_money'), 'error')
         return
@@ -276,9 +278,16 @@ local function EnterInterior(index)
                 lib.requestModel(props.model)
                 Framework.SpawnLocalVehicle(props.model, coords.xyz, coords.w, function(entity)
                     lib.setVehicleProperties(entity, props)
+                    
+                    for _ = 1, 10 do
+                        SetVehicleOnGroundProperly(entity)
+                        Wait(0)
+                    end
+
                     FreezeEntityPosition(entity, true)
                     table.insert(entities, entity)
                 end)
+
                 spawned = true
             end
             vehicleIndex += 1
@@ -296,100 +305,109 @@ local function EnterInterior(index)
         ShowNotification(locale('too_many_vehicles'), 'error')
     end
 
-    local point = lib.points.new(interior.Coords.xyz, 1.0, {
+    ---@type CPoint, fun()
+    local point, chooseVehicle
+
+    -- Add the event manually instead of using lib.onCache so we can remove it later
+    local eventData = AddEventHandler('ox_lib:cache:vehicle', function(vehicle)
+        if vehicle then
+            ShowUI(locale('choose_vehicle', FirstBind.currentKey))
+            FirstBind.addListener('choose_vehicle', chooseVehicle)
+        else
+            HideUI()
+            FirstBind.removeListener('choose_vehicle')
+        end
+    end)
+
+    chooseVehicle = function()
+        DoScreenFadeOut(500)
+        
+        while not IsScreenFadedOut() do Wait(100) end
+
+        local props = lib.getVehicleProperties(cache.vehicle)
+        
+        point:remove()
+        RemoveEventHandler(eventData)
+        DeleteEntity(cache.vehicle)
+        TriggerServerEvent('lunar_garage:exitInterior')
+        Wait(1000)
+        SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
+        SpawnVehicle({ index = index, props = props })
+        DoScreenFadeIn(500)
+    end
+
+    point = lib.points.new(interior.Coords.xyz, 1.0, {
         onEnter = function(self)
             ShowUI(locale('exit_garage', FirstBind.currentKey), 'door-open')
-            zone = { type = 'exit', point = self }
+            FirstBind.addListener('exit_garage', function()
+                DoScreenFadeOut(500)
+
+                while not IsScreenFadedOut() do Wait(100) end
+
+                for _, entity in ipairs(entities) do
+                    DeleteEntity(entity)
+                end
+
+                self:onExit()
+                self:remove()
+                RemoveEventHandler(eventData)
+                TriggerServerEvent('lunar_garage:exitInterior')
+                SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
+                Wait(1000)
+                DoScreenFadeIn(500)
+            end)
         end,
         onExit = function()
             HideUI()
+            FirstBind.removeListener('exit_garage')
         end
     })
-
-    local inside = true
-    local remove = point.remove
-
-    -- Override remove function
-    ---@diagnostic disable-next-line: redundant-parameter
-    function point.remove(self)
-        inside = false
-        DoScreenFadeOut(500)
-
-        while not IsScreenFadedOut() do Wait(100) end
-
-        for _, entity in ipairs(entities) do
-            DeleteEntity(entity)
-        end
-
-        ---@diagnostic disable-next-line: redundant-parameter
-        remove(self)
-
-        SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
-        Wait(1000)
-        DoScreenFadeIn(500)
-    end
-
-    local function ChooseVehicle()
-        DoScreenFadeOut(500)
-        
-        while not IsScreenFadedOut() do Wait(100) end
-
-        point:remove()
-        DeleteEntity(cache.vehicle)
-        Wait(1000)
-        SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
-        
-        local props = lib.getVehicleProperties(cache.vehicle)
-
-        SpawnVehicle({ index, props })
-        DoScreenFadeIn(500)
-    end
-
-    CreateThread(function()
-        while inside do
-            if zone?.type ~= 'vehicle' and cache.vehicle then
-                ShowUI(locale('choose_vehicle'))
-                zone = { type = 'vehicle', handler = ChooseVehicle }
-            elseif zone?.type == 'vehicle' and not cache.vehicle then
-                HideUI()
-            end
-            Wait(500)
-        end
-    end)
 end
 
-FirstBind = lib.addKeybind({
+FirstBind = Utils.AddKeybind({
     name = 'garage_interact1',
     description = 'Open garage/impound',
-    defaultKey = 'E',
-    onPressed = function()
-        if not zone then return end
-
-        if zone.type == 'garage' then
-            OpenGarage(zone.index)
-        elseif zone.type == 'impound' then
-            OpenImpound(zone.index)
-        elseif zone.type == 'exit' then
-            zone.point:remove()
-        end
-    end
+    defaultKey = 'E'
 })
 
-SecondBind = lib.addKeybind({
+SecondBind = Utils.AddKeybind({
     name = 'garage_interact2',
     description = 'Save vehicle/Go into garage',
-    defaultKey = 'G',
-    onPressed = function()
-        if zone and zone.type == 'garage' then
-            local garage = Config.Garages[zone.index]
-            if cache.vehicle then
-                SaveVehicle()
-            elseif garage.Interior then
-                EnterInterior(zone.index)
-            end
-        end
-    end
+    defaultKey = 'G'
 })
+
+local currentGarageIndex
+
+lib.onCache('vehicle', function(vehicle)
+    if not currentGarageIndex then return end
+
+    local garage = Config.Garages[currentGarageIndex]
+
+    if not garage then return end
+    
+    if vehicle then
+        ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
+        SecondBind.addListener('garage', function()
+            SaveVehicle()
+        end)
+    else
+        local prompt
+
+        if garage.Interior then
+            prompt = ('[%s] - %s  \n  [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
+        else
+            prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
+        end
+
+        ShowUI(prompt, 'warehouse')
+        FirstBind.addListener('garage', function(self)
+            OpenGarage(currentGarageIndex)
+        end)
+        SecondBind.addListener('garage', function(self)
+            EnterInterior(currentGarageIndex)
+        end)
+    end
+end)
 
 for index, data in ipairs(Config.Garages) do
     if data.Position and data.PedPosition then
@@ -405,6 +423,9 @@ for index, data in ipairs(Config.Garages) do
 
                 if cache.vehicle then
                     ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
+                    SecondBind.addListener('garage', function()
+                        SaveVehicle()
+                    end)
                 else
                     local prompt
 
@@ -415,34 +436,23 @@ for index, data in ipairs(Config.Garages) do
                     end
 
                     ShowUI(prompt, 'warehouse')
+                    FirstBind.addListener('garage', function(self)
+                        OpenGarage(index)
+                    end)
+                    SecondBind.addListener('garage', function(self)
+                        EnterInterior(index)
+                    end)
                 end
-                zone = { type = 'garage', index = index }
+
+                currentGarageIndex = index
             end,
             onExit = function()
-                if zone?.type == 'garage' then
-                    HideUI()
-                    zone = nil
-                end
+                HideUI()
+                FirstBind.removeListener('garage')
+                SecondBind.removeListener('garage')
+                currentGarageIndex = nil
             end
         })
-
-        lib.onCache('vehicle', function(vehicle)
-            if zone?.type ~= 'garage' then return end
-                
-            if vehicle then
-                ShowUI(('[%s] - %s'):format(SecondBind.currentKey, locale('save_vehicle')), 'floppy-disk')
-            else
-                local prompt
-
-                if data.Interior then
-                    prompt = ('[%s] - %s  \n  [%s] - %s'):format(FirstBind.currentKey, locale('open_garage'), SecondBind.currentKey, locale('enter_interior'))
-                else
-                    prompt = (('[%s] - %s'):format(FirstBind.currentKey, locale('open_garage')))
-                end
-
-                ShowUI(prompt, 'warehouse')
-            end
-        end)
     elseif data.PedPosition then
         if not data.Model then
             warn('Skipping garage - missing Model, index: %s', index)
@@ -454,7 +464,7 @@ for index, data in ipairs(Config.Garages) do
                 label = locale('open_garage'),
                 icon = 'warehouse',
                 job = data.Jobs,
-                args = { index = index, society = society },
+                args = index,
                 action = OpenGarage
             }
         })
@@ -475,16 +485,16 @@ for index, data in ipairs(Config.Impounds) do
             coords = data.Position,
             radius = Config.MaxDistance,
             onEnter = function()
-                if data.Jobs and not Utils.HasJobs(data.Jobs) then return end 
+                if data.Jobs and not Utils.HasJobs(data.Jobs) then return end
 
                 ShowUI(('[%s] - %s'):format(FirstBind.currentKey, locale('open_impound')), 'warehouse')
-                zone = { type = 'impound', index = index }
+                FirstBind.addListener('impound', function(self)
+                    OpenImpound(index)
+                end)
             end,
             onExit = function()
-                if zone?.type == 'impound' then
-                    HideUI()
-                    zone = nil
-                end
+                HideUI()
+                FirstBind.removeListener('impound')
             end
         })
     elseif data.PedPosition then

@@ -73,7 +73,8 @@ Config.Garages = {
         Visible = true,
         Type = 'car',
         Position = vector3(220.1418, -800.1686, 30.7227),
-        SpawnPosition = vector4(229.3425, -801.4708, 30.5659, 161.8591)
+        SpawnPosition = vector4(229.3425, -801.4708, 30.5659, 161.8591),
+        Interior = 'small'
     },
     {
         Visible = true,
@@ -200,14 +201,13 @@ Config.Garages = {
 Config.GarageInteriors = {
     ['small'] = {
         -- The teleport coords
-        Coords = vector4(0.0, 0.0, 0.0, 0.0), 
+        Coords = vector4(637.1520, 4750.6572, -59.0000, 91.4643), 
         -- The vehicle spot coords array
         Vehicles = {
-            vector4(0.0, 0.0, 0.0, 0.0),
-            vector4(0.0, 0.0, 0.0, 0.0),
-            vector4(0.0, 0.0, 0.0, 0.0),
-            vector4(0.0, 0.0, 0.0, 0.0),
-            vector4(0.0, 0.0, 0.0, 0.0)
+            vector4(623.0, 4750.4780, -59.5000, 179.0),
+            vector4(626.0, 4750.4790, -59.5000, 179.0),
+            vector4(629.0, 4750.5620, -59.5000, 179.0),
+            vector4(632.0, 4750.5078, -59.5000, 179.0),
         }
     },
     ['medium'] = {
