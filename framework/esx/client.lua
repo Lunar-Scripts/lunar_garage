@@ -5,7 +5,7 @@ local sharedObject = exports['es_extended']:getSharedObject()
 
 AddEventHandler('esx:setPlayerData', function(key, val, last)
     if GetInvokingResource() == 'es_extended' then
-        sharedObject.playerData[key] = val
+        sharedObject.PlayerData[key] = val
         if OnPlayerData then
             OnPlayerData(key, val, last)
         end
@@ -13,13 +13,13 @@ AddEventHandler('esx:setPlayerData', function(key, val, last)
 end)
 
 RegisterNetEvent('esx:playerLoaded', function(xPlayer)
-    sharedObject.playerData = xPlayer
-    sharedObject.playerLoaded = true
+    sharedObject.PlayerData = xPlayer
+    sharedObject.PlayerLoaded = true
 end)
 
 RegisterNetEvent('esx:onPlayerLogout', function()
-    sharedObject.playerLoaded = false
-    sharedObject.playerData = {}
+    sharedObject.PlayerLoaded = false
+    sharedObject.PlayerData = {}
 end)
 
 Framework.isPlayerLoaded = sharedObject.IsPlayerLoaded
