@@ -5,6 +5,8 @@
     "status": "Status",
     "in_garage": "Inside garage",
     "out_garage": "Outside of garage",
+    "out_garage_message": "This vehicle is out of the garage.",
+    "on_impound": "On impound",
     "fuel": "Fuel",
     "no_fueltank": "No fuel tank",
     "player_vehicles": "Personal vehicles",
