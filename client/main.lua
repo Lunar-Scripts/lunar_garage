@@ -51,7 +51,7 @@ local function openGarageVehicles(args)
     local vehicles = lib.callback.await('lunar_garage:getOwnedVehicles', false, index, society)
     
     if #vehicles == 0 then
-        ShowNotification(society and locale('no_owned_vehicles') or locale('no_society_vehicles'), 'error')
+        ShowNotification(society and locale('no_society_vehicles') or locale('no_owned_vehicles'), 'error')
         return
     end
 
