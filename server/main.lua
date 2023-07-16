@@ -144,6 +144,9 @@ lib.callback.register('lunar_garage:saveVehicle', function(source, props)
 
         MySQL.update.await(Queries.setStoredVehicle, { 1, props.plate })
         MySQL.update.await(Queries.setVehicleProps, { json.encode(props), props.plate })
+
+        activeVehicles[props.plate] = nil;
+
         return true
     end
     
@@ -167,8 +170,10 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
 
         local impound = Config.Impounds[index]
         local coords = impound.SpawnPosition
-        local model = json.decode(vehicle.vehicle).model
-        local entity = Utils.createVehicle(model, coords)
+        local props = json.decode(vehicle.vehicle or vehicle.mods)
+        local entity = Utils.createVehicle(props.model, coords)
+        
+        activeVehicles[props.model] = entity
 
         return true, NetworkGetNetworkIdFromEntity(entity)
     end
