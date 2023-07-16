@@ -173,7 +173,7 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
         local props = json.decode(vehicle.vehicle or vehicle.mods)
         local entity = Utils.createVehicle(props.model, coords)
         
-        activeVehicles[props.model] = entity
+        activeVehicles[props.plate] = entity
 
         return true, NetworkGetNetworkIdFromEntity(entity)
     end
