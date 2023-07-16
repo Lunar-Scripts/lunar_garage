@@ -29,6 +29,10 @@ local scenarios = {
 }
 
 function Utils.createPed(coords, model, options)
+    if not IsModelValid(model) then
+        error('Invalid ped model: %s', model)
+    end
+
     -- Convert action to qtarget
     if options then
         for _, option in pairs(options) do
@@ -71,6 +75,23 @@ function Utils.createPed(coords, model, options)
     })
 end
 
+---@param point1 vector3 | vector4 | number
+---@param point2 vector3 | vector4 | number
+---@param distance number?
+---@diagnostic disable-next-line: duplicate-set-field
+function Utils.distanceCheck(point1, point2, distance)
+    distance = distance or Config.MaxDistance
+
+    if type(point1) == 'number' then
+        point1 = GetEntityCoords(point1)
+    end
+
+    if type(point2) == 'number' then
+        point2 = GetEntityCoords(point2)
+    end
+
+    return #(point1.xyz - point2.xyz) <= distance
+end
 
 ---@param coords vector3 | vector4
 ---@param distance number

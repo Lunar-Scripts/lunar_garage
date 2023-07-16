@@ -7,8 +7,9 @@ local resourceName = GetCurrentResourceName()
 ---@param point1 vector3 | vector4 | string | number
 ---@param point2 vector3 | vector4 | string | number
 ---@param distance number?
+---@diagnostic disable-next-line: duplicate-set-field
 function Utils.distanceCheck(point1, point2, distance)
-    distance = distance or Config.InteractDistance
+    distance = distance or Config.MaxDistance
 
     if type(point1) == 'number' or type(point1) == 'string' then
         local ped = GetPlayerPed(point1)

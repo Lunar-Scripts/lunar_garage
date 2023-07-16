@@ -126,13 +126,14 @@ local function openGarage(index)
     lib.showContext('garage_menu')
 end
 
-local function saveVehicle()
-    if cache.seat ~= -1 then
+---@param vehicle number?
+local function saveVehicle(vehicle)
+    if not vehicle and cache.seat ~= -1 then
         ShowNotification(locale('not_driver'), 'error')
         return
     end
 
-    local vehicle = cache.vehicle
+    local vehicle = cache.vehicle or vehicle
     local props = lib.getVehicleProperties(vehicle)
 
     if not props then return end
@@ -140,8 +141,17 @@ local function saveVehicle()
     local result = lib.callback.await('lunar_garage:saveVehicle', false, props)
     
     if result then
-        TaskLeaveAnyVehicle(cache.ped, 0, 0)
-        Wait(1000)
+        if cache.vehicle then
+            TaskLeaveAnyVehicle(cache.ped, 0, 0)
+            Wait(1000)
+        end
+
+        -- Make sure to request control of entity in case of another player driving it
+        while not NetworkHasControlOfEntity(vehicle) do
+            NetworkRequestControlOfEntity(vehicle)
+            Wait(0)
+        end
+
         DeleteEntity(vehicle)
         ShowNotification(locale('vehicle_saved'), 'success')
     else
@@ -312,7 +322,19 @@ for index, data in ipairs(Config.Garages) do
                 icon = 'warehouse',
                 job = data.Jobs,
                 args = index,
-                action = openGarage
+                onSelect = openGarage
+            },
+            {
+                label = locale('save_vehicle'),
+                icon = 'floppy-disk',
+                job = data.Jobs,
+                onSelect = function()
+                    local vehicle = GetVehiclePedIsIn(cache.ped, true)
+
+                    if Utils.distanceCheck(cache.ped, vehicle, 20.0) then
+                        saveVehicle(vehicle)
+                    end
+                end
             }
         })
     else
@@ -356,7 +378,7 @@ for index, data in ipairs(Config.Impounds) do
                 icon = 'warehouse',
                 job = data.Jobs,
                 args = index,
-                action = openImpound
+                onSelect = openImpound
             }
         })
     else
