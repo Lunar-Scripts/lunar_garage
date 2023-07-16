@@ -158,3 +158,11 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
 
     return false
 end)
+
+lib.callback.register('lunar_garage:getVehicleCoords', function(source, plate)
+    local entity = activeVehicles[plate]
+
+    if not entity then return end
+
+    return GetEntityCoords(entity)
+end)

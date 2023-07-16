@@ -79,8 +79,13 @@ local function openGarageVehicles(args)
             },
             args = { index = index, props = props },
             onSelect = vehicle.state == 'in_garage' and SpawnVehicle or function()
-                local message = locale(('%s_message'):format(vehicle.state))
-                ShowNotification(message, 'error')
+                if vehicle.state == 'out_garage' then
+                    local coords = lib.callback.await('lunar_garage:getVehicleCoords', false, vehicle.plate)
+                    SetNewWaypoint(coords.x, coords.y)
+                    ShowNotification(locale('out_garage_message'))
+                elseif vehicle.state == 'in_impound' then
+                    ShowNotification(locale('in_impound_message'), 'error')
+                end
             end
         }
 
