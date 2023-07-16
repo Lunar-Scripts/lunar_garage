@@ -36,6 +36,23 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
             player:getIdentifier(), garage.Type
         })
 
+        for _, vehicle in ipairs(vehicles) do
+            if vehicle.stored == 1 then
+                vehicle.state = 'in_garage'
+            elseif activeVehicles[vehicle.plate] then
+                local entity = activeVehicles[vehicle.plate]
+                if GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+                    DeleteEntity(entity)
+                    activeVehicles[vehicle.plate] = nil
+                    vehicle.state = 'in_impound'
+                else
+                    vehicle.state = 'out_garage'
+                end
+            else
+                vehicle.state = 'out_garage'
+            end
+        end
+
         return vehicles
     end
 end)
