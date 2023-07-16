@@ -26,7 +26,7 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
                     vehicle.state = 'out_garage'
                 end
             else
-                vehicle.state = 'out_garage'
+                vehicle.state = 'in_impound'
             end
         end
 
@@ -49,7 +49,7 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
                     vehicle.state = 'out_garage'
                 end
             else
-                vehicle.state = 'out_garage'
+                vehicle.state = 'in_impound'
             end
         end
 
