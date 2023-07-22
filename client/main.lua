@@ -8,6 +8,12 @@ function SpawnVehicle(args)
     while not NetworkDoesEntityExistWithNetworkId(netId) do Wait(0) end
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
+
+    while not NetworkHasControlOfEntity(vehicle) do
+        NetworkRequestControlOfEntity(vehicle)
+        Wait(0)
+    end
+
     lib.setVehicleProperties(vehicle, props)
     TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
@@ -176,6 +182,12 @@ local function retrieveVehicle(args)
     while not NetworkDoesEntityExistWithNetworkId(netId) do Wait(0) end
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
+
+    while not NetworkHasControlOfEntity(vehicle) do
+        NetworkRequestControlOfEntity(vehicle)
+        Wait(0)
+    end
+
     lib.setVehicleProperties(vehicle, props)
     TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
 end
