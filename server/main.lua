@@ -18,7 +18,10 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
                 vehicle.state = 'in_garage'
             elseif activeVehicles[vehicle.plate] then
                 local entity = activeVehicles[vehicle.plate]
-                if GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+                if not DoesEntityExist(entity) then
+                    activeVehicles[vehicle.plate] = nil
+                    vehicle.state = 'in_impound'
+                elseif GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
                     DeleteEntity(entity)
                     activeVehicles[vehicle.plate] = nil
                     vehicle.state = 'in_impound'
@@ -41,7 +44,7 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
                 vehicle.state = 'in_garage'
             elseif activeVehicles[vehicle.plate] then
                 local entity = activeVehicles[vehicle.plate]
-                if GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+                if not DoesEntityExist(entity) or GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
                     DeleteEntity(entity)
                     activeVehicles[vehicle.plate] = nil
                     vehicle.state = 'in_impound'
@@ -75,6 +78,9 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
 
             if not entity then
                 table.insert(filtered, vehicle)
+            elseif not DoesEntityExist(entity) then
+                activeVehicles[vehicle.plate] = nil
+                table.insert(filtered, vehicle)
             elseif GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
                 DeleteEntity(entity)
                 activeVehicles[vehicle.plate] = nil
@@ -95,7 +101,10 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
 
             if not entity then
                 table.insert(filtered, vehicle)
-            elseif not DoesEntityExist(entity) or GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
+            elseif not DoesEntityExist(entity) then
+                activeVehicles[vehicle.plate] = nil
+                table.insert(filtered, vehicle)
+            elseif GetVehiclePetrolTankHealth(entity) <= 0 or GetVehicleBodyHealth(entity) <= 0 then
                 DeleteEntity(entity)
                 activeVehicles[vehicle.plate] = nil
                 table.insert(filtered, vehicle)
