@@ -1,20 +1,29 @@
+local function getVehicleType(model)
+    if IsThisModelABike(model) then
+        return 'bike'
+    elseif IsThisModelACar(model) then
+        return 'automobile'
+    elseif IsThisModelABoat(model) then
+        return 'boat'
+    elseif IsThisModelAPlane(model) then
+        return 'plane'
+    elseif IsThisModelAHeli(model) then
+        return 'heli'
+    end
+end
+
 function SpawnVehicle(args)
     ---@type integer, VehicleProperties
     local index, props in args
     
     lib.requestModel(props.model)
-    local netId = lib.callback.await('lunar_garage:takeOutVehicle', false, index, props.plate)
+    local type = getVehicleType(props.model)
+    local netId = lib.callback.await('lunar_garage:takeOutVehicle', false, index, props.plate, type)
     
     while not NetworkDoesEntityExistWithNetworkId(netId) do Wait(0) end
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
-    while not NetworkHasControlOfEntity(vehicle) do
-        NetworkRequestControlOfEntity(vehicle)
-        Wait(0)
-    end
-
-    lib.setVehicleProperties(vehicle, props)
     SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
@@ -154,7 +163,8 @@ local function saveVehicle(vehicle)
 
     if not props then return end
 
-    local result = lib.callback.await('lunar_garage:saveVehicle', false, props)
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
+    local result = lib.callback.await('lunar_garage:saveVehicle', false, props, netId)
     
     if result then
         if cache.vehicle then
@@ -162,13 +172,6 @@ local function saveVehicle(vehicle)
             Wait(1000)
         end
 
-        -- Make sure to request control of entity in case of another player driving it
-        while not NetworkHasControlOfEntity(vehicle) do
-            NetworkRequestControlOfEntity(vehicle)
-            Wait(0)
-        end
-
-        DeleteEntity(vehicle)
         ShowNotification(locale('vehicle_saved'), 'success')
     else
         ShowNotification(locale('not_your_vehicle'), 'error')
@@ -180,7 +183,8 @@ local function retrieveVehicle(args)
     local index, props in args
     
     lib.requestModel(props.model)
-    local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate)
+    local type = getVehicleType(props.model)
+    local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate, type)
 
     if not success then
         ShowNotification(locale('not_enough_money'), 'error')
@@ -191,12 +195,6 @@ local function retrieveVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
-    while not NetworkHasControlOfEntity(vehicle) do
-        NetworkRequestControlOfEntity(vehicle)
-        Wait(0)
-    end
-
-    lib.setVehicleProperties(vehicle, props)
     SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts

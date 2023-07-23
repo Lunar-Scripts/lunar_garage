@@ -68,8 +68,13 @@ function Utils.logToDiscord(source, xPlayer, message)
         'POST', json.encode({ username = resourceName, embeds = connect }), { ['Content-Type'] = 'application/json' })
 end
 
-function Utils.createVehicle(model, coords)
-    local vehicle = CreateVehicleServerSetter(model, 'automobile', coords.x, coords.y, coords.z - 0.5, coords.w)
+---Spawns a persistent vehicle
+---@param model number
+---@param coords vector4
+---@param type string
+---@return number
+function Utils.createVehicle(model, coords, type)
+    local vehicle = CreateVehicleServerSetter(model, type, coords.x, coords.y, coords.z - 0.5, coords.w)
 
     for seatIndex = -1, 6 do
         local ped = GetPedInVehicleSeat(vehicle, seatIndex)

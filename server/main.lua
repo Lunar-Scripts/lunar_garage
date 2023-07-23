@@ -118,7 +118,7 @@ lib.callback.register('lunar_garage:getImpoundedVehicles', function(source, inde
     end
 end)
 
-lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, plate)
+lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, plate, type)
     local player = Framework.getPlayerFromId(source)
     if not player then return end
 
@@ -130,16 +130,24 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
         MySQL.update.await(Queries.setStoredVehicle, { 0, plate })
         local garage = Config.Garages[index]
         local coords = garage.SpawnPosition
-        local model = json.decode(vehicle.mods or vehicle.vehicle).model
-        local entity = Utils.createVehicle(model, coords)
+        local props = json.decode(vehicle.mods or vehicle.vehicle)
+        local entity = Utils.createVehicle(props.model, coords, type)
 
-        activeVehicles[plate] = entity;
+        if entity == 0 then return end
 
-        return NetworkGetNetworkIdFromEntity(entity)
+        while NetworkGetEntityOwner(entity) == -1 do Wait(0) end
+
+        local netId, owner = NetworkGetNetworkIdFromEntity(entity), NetworkGetEntityOwner(entity)
+        
+        TriggerClientEvent('ox_lib:setVehicleProperties', owner, netId, props)
+
+        activeVehicles[plate] = entity
+
+        return netId
     end
 end)
 
-lib.callback.register('lunar_garage:saveVehicle', function(source, props)
+lib.callback.register('lunar_garage:saveVehicle', function(source, props, netId)
     local player = Framework.getPlayerFromId(source)
     if not player then return end
 
@@ -157,6 +165,14 @@ lib.callback.register('lunar_garage:saveVehicle', function(source, props)
         MySQL.update.await(Queries.setStoredVehicle, { 1, props.plate })
         MySQL.update.await(Queries.setVehicleProps, { json.encode(props), props.plate })
 
+        SetTimeout(1000, function()
+            local vehicle = NetworkGetEntityFromNetworkId(netId)
+            
+            if DoesEntityExist(vehicle) then
+                DeleteEntity(vehicle)
+            end
+        end)
+
         activeVehicles[props.plate] = nil;
 
         return true
@@ -165,7 +181,7 @@ lib.callback.register('lunar_garage:saveVehicle', function(source, props)
     return false
 end)
 
-lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, plate)
+lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, plate, type)
     if activeVehicles[plate] then return end
 
     local player = Framework.getPlayerFromId(source)
@@ -183,11 +199,19 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
         local impound = Config.Impounds[index]
         local coords = impound.SpawnPosition
         local props = json.decode(vehicle.mods or vehicle.vehicle)
-        local entity = Utils.createVehicle(props.model, coords)
+        local entity = Utils.createVehicle(props.model, coords, type)
+
+        if entity == 0 then return end
+
+        while NetworkGetEntityOwner(entity) == -1 do Wait(0) end
+
+        local netId, owner = NetworkGetNetworkIdFromEntity(entity), NetworkGetEntityOwner(entity)
         
+        TriggerClientEvent('ox_lib:setVehicleProperties', owner, netId, props)
+
         activeVehicles[props.plate] = entity
 
-        return true, NetworkGetNetworkIdFromEntity(entity)
+        return true, netId
     end
 
     return false
