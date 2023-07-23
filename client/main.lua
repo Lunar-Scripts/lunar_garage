@@ -12,15 +12,21 @@ local function getVehicleType(model)
     end
 end
 
--- Taken from ox_lib, but higher timeout value
+-- Taken from ox_lib, but higher timeout value and modified
 RegisterNetEvent('lunar_garage:setVehicleProperties', function(netid, data)
-    local timeout = 2000
+    local timeout = 500
+
     while not NetworkDoesEntityExistWithNetworkId(netid) and timeout > 0 do
         Wait(0)
         timeout -= 1
     end
+
     if timeout > 0 then
-        lib.setVehicleProperties(NetToVeh(netid), data)
+        local vehicle = NetToVeh(netid)
+
+        if NetworkGetEntityOwner(vehicle) ~= PlayerId() then return end
+
+        lib.setVehicleProperties(vehicle, data)
     end
 end)
 
