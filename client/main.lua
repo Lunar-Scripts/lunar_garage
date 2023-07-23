@@ -12,6 +12,18 @@ local function getVehicleType(model)
     end
 end
 
+-- Taken from ox_lib, but higher timeout value
+RegisterNetEvent('lunar_garage:setVehicleProperties', function(netid, data)
+    local timeout = 2000
+    while not NetworkDoesEntityExistWithNetworkId(netid) and timeout > 0 do
+        Wait(0)
+        timeout -= 1
+    end
+    if timeout > 0 then
+        lib.setVehicleProperties(NetToVeh(netid), data)
+    end
+end)
+
 function SpawnVehicle(args)
     ---@type integer, VehicleProperties
     local index, props in args
