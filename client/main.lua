@@ -28,7 +28,7 @@ function SpawnVehicle(args)
     SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
-    for _ = 1, 1000 do
+    for _ = 1, 2000 do
         TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
         Wait(0)
 
@@ -201,7 +201,7 @@ local function retrieveVehicle(args)
     SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
-    for _ = 1, 1000 do
+    for _ = 1, 2000 do
         TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
         Wait(0)
 
