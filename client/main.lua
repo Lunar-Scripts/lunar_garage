@@ -13,18 +13,18 @@ local function getVehicleType(model)
 end
 
 -- Taken from ox_lib, but higher timeout value and modified
-RegisterNetEvent('lunar_garage:setVehicleProperties', function(netid, data)
-    local timeout = 500
+RegisterNetEvent('lunar_garage:setVehicleProperties', function(netId, data)
+    local timeout = 10000
 
-    while not NetworkDoesEntityExistWithNetworkId(netid) and timeout > 0 do
+    while not NetworkDoesEntityExistWithNetworkId(netId) and timeout > 0 do
         Wait(0)
         timeout -= 1
     end
 
     if timeout > 0 then
-        local vehicle = NetToVeh(netid)
+        local vehicle = NetToVeh(netId)
 
-        if NetworkGetEntityOwner(vehicle) ~= PlayerId() then return end
+        if NetworkGetEntityOwner(vehicle) ~= cache.playerId then return end
 
         lib.setVehicleProperties(vehicle, data)
     end
@@ -42,8 +42,24 @@ function SpawnVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
-    SetVehicleFuel(vehicle, props.fuelLevel)
-    SetVehicleOwner(props.plate)
+    Wait(200)
+
+    CreateThread(function()
+        while true do
+            local plate = GetVehicleNumberPlateText(vehicle)
+
+            if plate == props.plate then
+                return
+            end
+
+            if NetworkGetEntityOwner(vehicle) == cache.playerId then
+                lib.setVehicleProperties(vehicle, props)
+                return
+            end
+
+            Wait(0)
+        end
+    end)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
     for _ = 1, 2000 do
@@ -54,6 +70,9 @@ function SpawnVehicle(args)
             break
         end
     end
+
+    SetVehicleFuel(vehicle, props.fuelLevel)
+    SetVehicleOwner(props.plate)
 end
 
 function GetVehicleLabel(model)
@@ -215,8 +234,24 @@ local function retrieveVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
-    SetVehicleFuel(vehicle, props.fuelLevel)
-    SetVehicleOwner(props.plate)
+    Wait(200)
+
+    CreateThread(function()
+        while true do
+            local plate = GetVehicleNumberPlateText(vehicle)
+
+            if plate == props.plate then
+                return
+            end
+
+            if NetworkGetEntityOwner(vehicle) == cache.playerId then
+                lib.setVehicleProperties(vehicle, props)
+                return
+            end
+
+            Wait(0)
+        end
+    end)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
     for _ = 1, 2000 do
@@ -227,6 +262,9 @@ local function retrieveVehicle(args)
             break
         end
     end
+
+    SetVehicleFuel(vehicle, props.fuelLevel)
+    SetVehicleOwner(props.plate)
 end
 
 local function openImpoundVehicles(args)

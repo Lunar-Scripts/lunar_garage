@@ -137,9 +137,9 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
 
         while NetworkGetEntityOwner(entity) == -1 do Wait(0) end
 
-        local netId = NetworkGetNetworkIdFromEntity(entity)
+        local netId, owner = NetworkGetNetworkIdFromEntity(entity), NetworkGetEntityOwner(entity)
         
-        TriggerClientEvent('lunar_garage:setVehicleProperties', -1, netId, props)
+        TriggerClientEvent('lunar_garage:setVehicleProperties', owner, netId, props)
 
         activeVehicles[plate] = entity
 
@@ -205,9 +205,9 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
 
         while NetworkGetEntityOwner(entity) == -1 do Wait(0) end
 
-        local netId = NetworkGetNetworkIdFromEntity(entity)
+        local netId, owner = NetworkGetNetworkIdFromEntity(entity), NetworkGetEntityOwner(entity)
         
-        TriggerClientEvent('lunar_garage:setVehicleProperties', -1, netId, props)
+        TriggerClientEvent('lunar_garage:setVehicleProperties', owner, netId, props)
 
         activeVehicles[props.plate] = entity
 
