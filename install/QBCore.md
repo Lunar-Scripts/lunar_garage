@@ -9,6 +9,9 @@
     ADD COLUMN `job` VARCHAR(20) NULL DEFAULT NULL;
 
     ALTER TABLE `player_vehicles`
+    ADD COLUMN `type` VARCHAR(20) NOT NULL DEFAULT 'car';
+
+    ALTER TABLE `player_vehicles`
     ADD COLUMN `stored` TINYINT(1) NOT NULL DEFAULT '0';
 
 4. Delete old player_vehicles in database and import this incase of having problems:
@@ -53,6 +56,9 @@
     
     ALTER TABLE `player_vehicles`
     ADD COLUMN `job` VARCHAR(20) NULL DEFAULT NULL;
+
+    ALTER TABLE `player_vehicles`
+    ADD COLUMN `type` VARCHAR(20) NOT NULL DEFAULT 'car';
 
     ALTER TABLE `player_vehicles`
     ADD COLUMN `stored` TINYINT(1) NOT NULL DEFAULT '0';

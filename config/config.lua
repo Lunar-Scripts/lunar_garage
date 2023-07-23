@@ -1,5 +1,6 @@
 Config = {}
 Config.MaxDistance = 10.0 -- Max interact distance
+Config.UseKeySystem = true -- Implemented only for qb-vehiclekeys, you can implement it for other systems in cl_edit.lua
 
 ---@alias VehicleType string
 

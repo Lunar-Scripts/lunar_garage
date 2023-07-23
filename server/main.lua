@@ -14,7 +14,7 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
         })
 
         for _, vehicle in ipairs(vehicles) do
-            if vehicle.stored == 1 then
+            if vehicle.stored == 1 or vehicle.stored == true then
                 vehicle.state = 'in_garage'
             elseif activeVehicles[vehicle.plate] then
                 local entity = activeVehicles[vehicle.plate]
@@ -40,7 +40,7 @@ lib.callback.register('lunar_garage:getOwnedVehicles', function(source, index, s
         })
 
         for _, vehicle in ipairs(vehicles) do
-            if vehicle.stored == 1 then
+            if vehicle.stored == 1 or vehicle.stored == true then
                 vehicle.state = 'in_garage'
             elseif activeVehicles[vehicle.plate] then
                 local entity = activeVehicles[vehicle.plate]
@@ -130,7 +130,7 @@ lib.callback.register('lunar_garage:takeOutVehicle', function(source, index, pla
         MySQL.update.await(Queries.setStoredVehicle, { 0, plate })
         local garage = Config.Garages[index]
         local coords = garage.SpawnPosition
-        local model = json.decode(vehicle.vehicle).model
+        local model = json.decode(vehicle.mods or vehicle.vehicle).model
         local entity = Utils.createVehicle(model, coords)
 
         activeVehicles[plate] = entity;
@@ -182,7 +182,7 @@ lib.callback.register('lunar_garage:retrieveVehicle', function(source, index, pl
 
         local impound = Config.Impounds[index]
         local coords = impound.SpawnPosition
-        local props = json.decode(vehicle.vehicle or vehicle.mods)
+        local props = json.decode(vehicle.mods or vehicle.vehicle)
         local entity = Utils.createVehicle(props.model, coords)
         
         activeVehicles[props.plate] = entity

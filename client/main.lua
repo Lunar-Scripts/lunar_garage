@@ -15,6 +15,7 @@ function SpawnVehicle(args)
     end
 
     lib.setVehicleProperties(vehicle, props)
+    SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
     for _ = 1, 1000 do
@@ -181,8 +182,6 @@ local function retrieveVehicle(args)
     lib.requestModel(props.model)
     local success, netId = lib.callback.await('lunar_garage:retrieveVehicle', false, index, props.plate)
 
-    print(netId)
-
     if not success then
         ShowNotification(locale('not_enough_money'), 'error')
         return
@@ -198,6 +197,7 @@ local function retrieveVehicle(args)
     end
 
     lib.setVehicleProperties(vehicle, props)
+    SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
     for _ = 1, 1000 do
