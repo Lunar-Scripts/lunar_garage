@@ -15,7 +15,16 @@ function SpawnVehicle(args)
     end
 
     lib.setVehicleProperties(vehicle, props)
-    TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+
+    -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
+    for _ = 1, 1000 do
+        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+        Wait(0)
+
+        if GetVehiclePedIsIn(cache.ped, false) == vehicle then
+            break
+        end
+    end
 end
 
 function GetVehicleLabel(model)
@@ -189,7 +198,16 @@ local function retrieveVehicle(args)
     end
 
     lib.setVehicleProperties(vehicle, props)
-    TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+
+    -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
+    for _ = 1, 1000 do
+        TaskWarpPedIntoVehicle(cache.ped, vehicle, -1)
+        Wait(0)
+
+        if GetVehiclePedIsIn(cache.ped, false) == vehicle then
+            break
+        end
+    end
 end
 
 local function openImpoundVehicles(args)
