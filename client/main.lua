@@ -24,6 +24,7 @@ function SpawnVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
+    SetVehicleFuel(vehicle, props.fuelLevel)
     SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts
@@ -163,6 +164,7 @@ local function saveVehicle(vehicle)
 
     if not props then return end
 
+    props.fuelLevel = GetVehicleFuel(vehicle)
     local netId = NetworkGetNetworkIdFromEntity(vehicle)
     local result = lib.callback.await('lunar_garage:saveVehicle', false, props, netId)
     
@@ -195,6 +197,7 @@ local function retrieveVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
+    SetVehicleFuel(vehicle, props.fuelLevel)
     SetVehicleOwner(props.plate)
 
     -- The player doesn't get warped in the vehicle sometimes, repeat it and timeout after 2000 attempts

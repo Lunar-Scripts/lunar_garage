@@ -39,7 +39,7 @@ function EnterInterior(index)
             if not vehicle then goto skip end
 
             ---@type VehicleProperties
-            local props = json.decode(vehicle.vehicle or vehicle.mods)
+            local props = json.decode(vehicle.mods or vehicle.vehicle)
 
             if props?.model and IsModelValid(props.model) then
                 lib.requestModel(props.model)

@@ -23,6 +23,21 @@ function HideUI()
     lib.hideTextUI()
 end
 
+function GetVehicleFuel(vehicle)
+    if GetResourceState('LegacyFuel') == 'started' then
+        local fuelLevel = exports['LegacyFuel']:GetFuel(vehicle, fuelLevel)
+        return math.floor(fuelLevel * 100) / 100
+    else
+        return GetVehicleFuelLevel(vehicle)
+    end
+end
+
+function SetVehicleFuel(vehicle, fuelLevel)
+    if GetResourceState('LegacyFuel') == 'started' then
+        exports['LegacyFuel']:SetFuel(vehicle, fuelLevel)
+    end
+end
+
 function SetVehicleOwner(plate)
     if not Config.UseKeySystem then return end
 
