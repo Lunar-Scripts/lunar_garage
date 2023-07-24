@@ -42,18 +42,16 @@ function SpawnVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
-    Wait(200)
-
     CreateThread(function()
         while true do
-            local plate = GetVehicleNumberPlateText(vehicle)
-
-            if plate == props.plate then
+            if NetworkGetEntityOwner(vehicle) == cache.playerId then
+                lib.setVehicleProperties(vehicle, props)
                 return
             end
 
-            if NetworkGetEntityOwner(vehicle) == cache.playerId then
-                lib.setVehicleProperties(vehicle, props)
+            local plate = GetVehicleNumberPlateText(vehicle)
+
+            if plate == props.plate then
                 return
             end
 
@@ -234,18 +232,16 @@ local function retrieveVehicle(args)
 
     local vehicle = NetworkGetEntityFromNetworkId(netId)
 
-    Wait(200)
-
     CreateThread(function()
         while true do
-            local plate = GetVehicleNumberPlateText(vehicle)
-
-            if plate == props.plate then
+            if NetworkGetEntityOwner(vehicle) == cache.playerId then
+                lib.setVehicleProperties(vehicle, props)
                 return
             end
 
-            if NetworkGetEntityOwner(vehicle) == cache.playerId then
-                lib.setVehicleProperties(vehicle, props)
+            local plate = GetVehicleNumberPlateText(vehicle)
+
+            if plate == props.plate then
                 return
             end
 
