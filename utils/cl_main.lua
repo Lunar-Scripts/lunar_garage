@@ -93,14 +93,6 @@ function Utils.distanceCheck(point1, point2, distance)
     return #(point1.xyz - point2.xyz) <= distance
 end
 
----@param coords vector3 | vector4
----@param distance number
-function Utils.distanceWait(coords, distance)
-    while #(GetEntityCoords(cache.ped) - coords.xyz) > distance do
-        Wait(200)
-    end
-end
-
 function Utils.createBlip(coords, text, sprite, scale, color)
     local blip = AddBlipForCoord(coords.x, coords.y)
 
@@ -114,53 +106,6 @@ function Utils.createBlip(coords, text, sprite, scale, color)
     AddTextComponentSubstringPlayerName(text)
     EndTextCommandSetBlipName(blip)
     return blip
-end
-
-function Utils.createRadiusBlip(coords, text, scale, color)
-    local blip = AddBlipForRadius(coords.x, coords.y, coords.z, scale)
-
-    SetBlipDisplay(blip, 4)
-    SetBlipScale  (blip, scale)
-    SetBlipColour (blip, color)
-    SetBlipAsShortRange(blip, true)
-    SetBlipAlpha(blip, 150)
-    return blip
-end
-
-function Utils.createEntityBlip(entity, text, sprite, scale, color)
-    local blip = AddBlipForEntity(entity)
-
-    SetBlipSprite (blip, sprite)
-    SetBlipDisplay(blip, 4)
-    SetBlipScale  (blip, scale)
-    SetBlipColour (blip, color)
-    SetBlipAsShortRange(blip, true)
-
-    BeginTextCommandSetBlipName('STRING')
-    AddTextComponentSubstringPlayerName(text)
-    EndTextCommandSetBlipName(blip)
-    return blip
-end
-
-function Utils.makeEntityFaceEntity(entity1, entity2)
-    local p1 = GetEntityCoords(entity1, true)
-    local p2 = GetEntityCoords(entity2, true)
-
-    local dx = p2.x - p1.x
-    local dy = p2.y - p1.y
-
-    local heading = GetHeadingFromVector_2d(dx, dy)
-    SetEntityHeading(entity1, heading)
-end
-
-function Utils.makeEntityFaceCoords(entity1, p2)
-    local p1 = GetEntityCoords(entity1, true)
-
-    local dx = p2.x - p1.x
-    local dy = p2.y - p1.y
-
-    local heading = GetHeadingFromVector_2d(dx, dy)
-    SetEntityHeading(entity1, heading)
 end
 
 ---@param jobs string | string[]

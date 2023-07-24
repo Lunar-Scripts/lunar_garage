@@ -4,32 +4,6 @@ lib.versionCheck('https://github.com/Lunar-Scripts/lunar_garage')
 Utils = {}
 local resourceName = GetCurrentResourceName()
 
----@param point1 vector3 | vector4 | string | number
----@param point2 vector3 | vector4 | string | number
----@param distance number?
----@diagnostic disable-next-line: duplicate-set-field
-function Utils.distanceCheck(point1, point2, distance)
-    distance = distance or Config.MaxDistance
-
-    if type(point1) == 'number' or type(point1) == 'string' then
-        local ped = GetPlayerPed(point1)
-
-        if ped == 0 then return false end
-
-        point1 = GetEntityCoords(ped)
-    end
-
-    if type(point2) == 'number' or type(point2) == 'string' then
-        local ped = GetPlayerPed(point2)
-
-        if ped == 0 then return false end
-
-        point2 = GetEntityCoords(ped)
-    end
-
-    return #(point1.xyz - point2.xyz) <= distance
-end
-
 ---@diagnostic disable-next-line: duplicate-set-field
 function Utils.getTableSize(t)
     local count = 0
