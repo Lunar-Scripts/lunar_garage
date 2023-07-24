@@ -120,7 +120,9 @@ function EnterInterior(index)
         busy = false
     end
 
-    point = lib.points.new(interior.Coords.xyz, 1.0, {
+    point = lib.points.new({
+        coords = interior.Coords.xyz,
+        distance = 1.0,
         onEnter = function(self)
             ShowUI(locale('exit_garage', Binds.first.currentKey), 'door-open')
             Binds.first.addListener('exit_garage', function()
