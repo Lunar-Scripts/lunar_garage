@@ -397,7 +397,7 @@ for index, data in ipairs(Config.Garages) do
         })
     elseif data.PedPosition then
         if not data.Model then
-            warn('Skipping garage - missing Model, index: %s', index)
+            warn(('Skipping garage - missing Model, index: %s'):format(index))
             goto continue
         end
 
@@ -423,7 +423,7 @@ for index, data in ipairs(Config.Garages) do
             }
         })
     else
-        warn('Skipping garage - missing Position or PedPosition, index: %s', index)
+        warn(('Skipping garage - missing Position or PedPosition, index: %s'):format(index))
     end
 
     ::continue::
@@ -453,7 +453,7 @@ for index, data in ipairs(Config.Impounds) do
         })
     elseif data.PedPosition then
         if not data.Model then
-            warn('Skipping impound - missing Model, index: %s', index)
+            warn(('Skipping impound - missing Model, index: %s'):format(index))
             goto continue
         end
 
@@ -467,7 +467,7 @@ for index, data in ipairs(Config.Impounds) do
             }
         })
     else
-        warn('Skipping impound - missing Position or PedPosition, index: %s', index)
+        warn(('Skipping impound - missing Position or PedPosition, index: %s'):format(index))
     end
 
     ::continue::
