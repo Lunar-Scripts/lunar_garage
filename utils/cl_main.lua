@@ -38,16 +38,25 @@ function Utils.createPed(coords, model, options)
         for _, option in pairs(options) do
             if option.onSelect then
                 local event = ('options_%p'):format(option.onSelect) -- Create unique name
+                ---@type function
+                local onSelect = option.onSelect
                 AddEventHandler(event, function()
-                    option.onSelect(option.args)
+                    onSelect(option.args)
                 end)
                 option.event = event
+                option.onSelect = nil
+            end
+
+            if option.icon then
+                option.icon = ('fa-solid fa-%s'):format(option.icon)
             end
         end
     end
 
     local ped
-    lib.points.new(coords.xyz, 100.0, {
+    lib.points.new({
+        coords = coords.xyz,
+        distance = 100.0,
         onEnter = function()
             lib.requestModel(model)
             ped = CreatePed(4, model, coords.x, coords.y, coords.z - 1.0, coords.w, false, true)
@@ -59,7 +68,7 @@ function Utils.createPed(coords, model, options)
                 local name = ('garage_ped_%s'):format(ped)
 
                 -- No need to add support for ox_target/qb-target, because this export is intercompatible
-                export.qtarget:AddCircleZone(name, coords.xyz, 0.75, {
+                exports.qtarget:AddCircleZone(name, coords.xyz, 0.75, {
                     name = name,
                     debugPoly = false
                 }, {

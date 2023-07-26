@@ -165,7 +165,7 @@ lib.callback.register('lunar_garage:saveVehicle', function(source, props, netId)
         MySQL.update.await(Queries.setStoredVehicle, { 1, props.plate })
         MySQL.update.await(Queries.setVehicleProps, { json.encode(props), props.plate })
 
-        SetTimeout(1000, function()
+        SetTimeout(500, function()
             local vehicle = NetworkGetEntityFromNetworkId(netId)
             
             if DoesEntityExist(vehicle) then
