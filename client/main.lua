@@ -350,10 +350,10 @@ local function garagePrompt(index, data)
         end
 
         ShowUI(prompt, 'warehouse')
-        Binds.first.addListener('garage', function(self)
+        Binds.first.addListener('garage', function()
             openGarage(index)
         end)
-        Binds.second.addListener('garage', function(self)
+        Binds.second.addListener('garage', function()
             EnterInterior(index)
         end)
     end
@@ -442,7 +442,7 @@ for index, data in ipairs(Config.Impounds) do
                 if data.Jobs and not Utils.hasJobs(data.Jobs) then return end
 
                 ShowUI(('[%s] - %s'):format(Binds.first.currentKey, locale('open_impound')), 'warehouse')
-                Binds.first.addListener('impound', function(self)
+                Binds.first.addListener('impound', function()
                     openImpound(index)
                 end)
             end,

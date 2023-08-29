@@ -1,7 +1,51 @@
 -- This part of the script could've been written much better, if you have the time to do so, create a PR.
 -- TODO: Refactor
 
-local busy = false
+local busy, currentIndex, point = false, nil, nil
+
+local function chooseVehicle(index)
+    if busy then return end
+
+    busy = true
+    local vehicle = cache.vehicle
+    local props = lib.getVehicleProperties(vehicle)
+
+    if not props then return end
+
+    DoScreenFadeOut(500)
+    
+    while not IsScreenFadedOut() do Wait(100) end
+
+    for _, entity in ipairs(entities) do
+        DeleteEntity(entity)
+    end
+    
+    currentIndex = nil
+    HideUI()
+    point:remove()
+    DeleteEntity(vehicle)
+    TriggerServerEvent('lunar_garage:exitInterior')
+    Wait(1000)
+    SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
+    SpawnVehicle({ index = index, props = props })
+    DoScreenFadeIn(500)
+
+    while not IsScreenFadedIn() do Wait(100) end
+
+    busy = false
+end
+
+lib.onCache('vehicle', function(vehicle)
+    if currentIndex then
+        if vehicle then
+            ShowUI(locale('choose_vehicle', Binds.first.currentKey))
+            Binds.first.addListener('choose_vehicle', chooseVehicle, currentIndex)
+        else
+            HideUI()
+            Binds.first.removeListener('choose_vehicle')
+        end
+    end
+end)
 
 ---@param index integer The garage index
 function EnterInterior(index)
@@ -13,7 +57,7 @@ function EnterInterior(index)
 
     if busy then return end
 
-    busy = true
+    busy, currentIndex = true, index
 
     DoScreenFadeOut(500)
 
@@ -75,51 +119,6 @@ function EnterInterior(index)
         ShowNotification(locale('too_many_vehicles'), 'error')
     end
 
-    ---@type CPoint, fun()
-    local point, chooseVehicle
-
-    -- Add the event manually instead of using lib.onCache so we can remove it later
-    local eventData = AddEventHandler('ox_lib:cache:vehicle', function(vehicle)
-        if vehicle then
-            ShowUI(locale('choose_vehicle', Binds.first.currentKey))
-            Binds.first.addListener('choose_vehicle', chooseVehicle)
-        else
-            HideUI()
-            Binds.first.removeListener('choose_vehicle')
-        end
-    end)
-
-    chooseVehicle = function()
-        if busy then return end
-
-        busy = true
-        local vehicle = cache.vehicle
-        local props = lib.getVehicleProperties(vehicle)
-
-        if not props then return end
-
-        DoScreenFadeOut(500)
-        
-        while not IsScreenFadedOut() do Wait(100) end
-
-        for _, entity in ipairs(entities) do
-            DeleteEntity(entity)
-        end
-        
-        point:remove()
-        RemoveEventHandler(eventData)
-        DeleteEntity(vehicle)
-        TriggerServerEvent('lunar_garage:exitInterior')
-        Wait(1000)
-        SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
-        SpawnVehicle({ index = index, props = props })
-        DoScreenFadeIn(500)
-
-        while not IsScreenFadedIn() do Wait(100) end
-
-        busy = false
-    end
-
     point = lib.points.new({
         coords = interior.Coords.xyz,
         distance = 1.0,
@@ -137,9 +136,9 @@ function EnterInterior(index)
                     DeleteEntity(entity)
                 end
 
+                currentIndex = nil
                 self:onExit()
                 self:remove()
-                RemoveEventHandler(eventData)
                 TriggerServerEvent('lunar_garage:exitInterior')
                 SetEntityCoords(cache.ped, lastCoords.x, lastCoords.y, lastCoords.z)
                 Wait(1000)

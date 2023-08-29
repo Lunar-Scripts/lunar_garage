@@ -141,7 +141,7 @@ end
 ---@field disable? fun(self: CKeybind, toggle: boolean)
 
 ---@class Keybind : CKeybind
----@field addListener fun(name: string, cb: fun(self: CKeybind))
+---@field addListener fun(name: string, cb: fun(self: CKeybind), args...: any)
 ---@field removeListener fun(name: string)
 
 -- A wrapper around lib.addKeybind with extra functions.
@@ -152,10 +152,11 @@ function Utils.addKeybind(data)
 
     local listeners = {}
 
-    function bind.addListener(name, cb)
-        listeners[name] = function(self)
+    function bind.addListener(name, cb, ...)
+        local args = ...
+        listeners[name] = function()
             CreateThread(function()
-                cb(self)
+                cb(args)
             end)
         end
     end
