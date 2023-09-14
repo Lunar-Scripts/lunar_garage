@@ -56,5 +56,7 @@
     "society_transfer": "Are you sure that you want to transfer this vehicle to your society?",
     "society_withdraw": "Are you sure that you want to withdraw this vehicle from your society?",
     "society_confirm": "Confirm",
-    "society_cancel": "Cancel"
+    "society_cancel": "Cancel",
+    "garage_menu": "Garage",
+    "impound_menu": "Impound"
 }
