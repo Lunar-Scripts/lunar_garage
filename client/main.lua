@@ -157,6 +157,7 @@ local function openGarageVehicles(args)
     lib.registerContext({
         id = 'garage_vehicles',
         title = society and locale('society_vehicles') or locale('player_vehicles'),
+        menu = 'garage_menu',
         options = options
     })
 
@@ -172,6 +173,7 @@ local function openGarage(index)
                 title = locale('player_vehicles'),
                 description = locale('player_vehicles_desc'),
                 icon = 'user',
+                arrow = true,
                 args = { index = index, society = false },
                 onSelect = openGarageVehicles
             },
@@ -179,6 +181,7 @@ local function openGarage(index)
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
                 icon = 'users',
+                arrow = true,
                 args = { index = index, society = true },
                 onSelect = openGarageVehicles
             },
@@ -303,6 +306,7 @@ local function openImpoundVehicles(args)
     lib.registerContext({
         id = 'impound_vehicles',
         title = society and locale('society_vehicles') or locale('player_vehicles'),
+        menu = 'impound_menu',
         options = options
     })
 
@@ -318,6 +322,7 @@ local function openImpound(index)
                 title = locale('player_vehicles'),
                 description = locale('player_vehicles_desc'),
                 icon = 'user',
+                arrow = true,
                 args = { index = index, society = false },
                 onSelect = openImpoundVehicles
             },
@@ -325,6 +330,7 @@ local function openImpound(index)
                 title = locale('society_vehicles'),
                 description = locale('society_vehicles_desc'),
                 icon = 'users',
+                arrow = true,
                 args = { index = index, society = true },
                 onSelect = openImpoundVehicles
             },
