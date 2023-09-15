@@ -1,7 +1,7 @@
 -- This part of the script could've been written much better, if you have the time to do so, create a PR.
 -- TODO: Refactor
 
-local busy, currentIndex, point = false, nil, nil
+local busy, currentIndex, point, entities = false, nil, nil, {}
 
 local function chooseVehicle(index)
     if busy then return end
@@ -19,6 +19,8 @@ local function chooseVehicle(index)
     for _, entity in ipairs(entities) do
         DeleteEntity(entity)
     end
+
+    table.wipe(entities)
     
     currentIndex = nil
     HideUI()
@@ -69,8 +71,6 @@ function EnterInterior(index)
     SetGameplayCamRelativeHeading(0.0)
 
     local vehicles = lib.callback.await('lunar_garage:enterInterior', false, garage.Type)
-    ---@type number[]
-    local entities = {}
 
     local vehicleIndex = 1
     for i = 1, #interior.Vehicles do
@@ -135,6 +135,8 @@ function EnterInterior(index)
                 for _, entity in ipairs(entities) do
                     DeleteEntity(entity)
                 end
+
+                table.wipe(entities)
 
                 currentIndex = nil
                 self:onExit()
