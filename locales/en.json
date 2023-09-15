@@ -58,5 +58,6 @@
     "society_confirm": "Confirm",
     "society_cancel": "Cancel",
     "garage_menu": "Garage",
-    "impound_menu": "Impound"
+    "impound_menu": "Impound",
+    "offer_declined": "The offer has been declined."
 }
