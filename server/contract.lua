@@ -1,4 +1,4 @@
-local function TransferToPlayer(source, plate, label)
+local function transferToPlayer(source, plate, label)
     local player = Framework.getPlayerFromId(source)
 
     if not player then return end
@@ -43,7 +43,7 @@ local function TransferToPlayer(source, plate, label)
     TriggerClientEvent('lunar_garage:showNotification', targetId, locale('vehicle_bought'))
 end
 
-local function TransferToSociety(source, plate)
+local function transferToSociety(source, plate)
     local player = Framework.getPlayerFromId(source)
 
     if not player then return end
@@ -67,7 +67,7 @@ local function TransferToSociety(source, plate)
     TriggerClientEvent('lunar_garage:showNotification', source, locale('vehicle_transfered'))
 end
 
-local function WithdrawFromSociety(source, plate)
+local function withdrawFromSociety(source, plate)
     local player = Framework.getPlayerFromId(source)
 
     if not player then return end
@@ -97,10 +97,10 @@ Framework.registerUsableItem(Config.Contract.Item, function(source)
     if not option or not plate then return end
 
     if option == 'transfer_player' then
-        TransferToPlayer(source, plate, label)
+        transferToPlayer(source, plate, label)
     elseif option == 'transfer_society' then
-        TransferToSociety(source, plate)
+        transferToSociety(source, plate)
     elseif option == 'withdraw_society' then
-        WithdrawFromSociety(source, plate)
+        withdrawFromSociety(source, plate)
     end
 end)
