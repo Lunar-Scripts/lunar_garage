@@ -17,7 +17,7 @@ local function transferToPlayer(source, plate, label)
         return
     end
 
-    if not Utils.distanceCheck(source, targetId, 10.0) then
+    if #(GetEntityCoords(GetPlayerPed(source)) - GetEntityCoords(GetPlayerPed(targetId))) > 10.0 then
         TriggerClientEvent('lunar_garage:showNotification', source, locale('player_too_far'), 'error')
         return
     end
@@ -29,10 +29,15 @@ local function transferToPlayer(source, plate, label)
     local name = ('%s %s'):format(player:getFirstName(), player:getLastName())
     local success = lib.callback.await('lunar_garage:getAgreement', targetId, price, label, name)
 
-    if not success then return end
+    if not success then
+        TriggerClientEvent('lunar_garage:showNotification', source, locale('offer_declined'), 'error')
+        return
+    end
 
     MySQL.update.await(Queries.transferVehiclePlayer, { target:getIdentifier(), plate })
     player:removeItem(Config.Contract.Item, 1)
+    target:removeAccountMoney('money', price)
+    player:addAccountMoney('money', price)
 
     TriggerClientEvent('lunar_garage:contractAnim', source, locale('progress_selling'))
     Wait(Config.Contract.Duration)
