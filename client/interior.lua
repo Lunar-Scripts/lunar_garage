@@ -65,7 +65,7 @@ function EnterInterior(index)
 
     while not IsScreenFadedOut() do Wait(100) end
 
-    local lastCoords = cache.coords
+    lastCoords = cache.coords
     SetEntityCoords(cache.ped, interior.Coords.x, interior.Coords.y, interior.Coords.z)
     SetEntityHeading(cache.ped, interior.Coords.w)
     SetGameplayCamRelativeHeading(0.0)
