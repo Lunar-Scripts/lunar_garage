@@ -48,7 +48,7 @@ end
 ---@param type string
 ---@return number
 function Utils.createVehicle(model, coords, type)
-    local vehicle = CreateVehicleServerSetter(model, type, coords.x, coords.y, coords.z - 0.5, coords.w)
+    local vehicle = CreateVehicleServerSetter(model, type, coords.x, coords.y, coords.z - 0.70, coords.w)
 
     for seatIndex = -1, 6 do
         local ped = GetPedInVehicleSeat(vehicle, seatIndex)
