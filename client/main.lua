@@ -416,6 +416,16 @@ for index, data in ipairs(Config.Garages) do
                 onSelect = openGarage
             },
             {
+                label = locale('enter_interior'),
+                icon = 'right-to-bracket',
+                job = data.Jobs,
+                args = index,
+                canInteract = function()
+                    return data.Interior ~= nil
+                end,
+                onSelect = EnterInterior
+            },
+            {
                 label = locale('save_vehicle'),
                 icon = 'floppy-disk',
                 job = data.Jobs,
