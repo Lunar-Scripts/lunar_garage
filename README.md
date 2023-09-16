@@ -13,6 +13,6 @@ Highly optimized garage system that allows you to add as many garages as you wis
 * ox_lib,
 * esx_vehicleshop/qb-vehicleshop (Can be swapped for vehicleshop of choice by editing server/db.lua)
 
-# Documentation: https://lunar-scripts.gitbook.io/lunar-scripts/free-scripts/lunar_garage
+### Documentation: https://lunar-scripts.gitbook.io/lunar-scripts/free-scripts/lunar_garage
 
-# Discord: https://discord.gg/zDK4CHQ56N
+### Discord: https://discord.gg/zDK4CHQ56N
