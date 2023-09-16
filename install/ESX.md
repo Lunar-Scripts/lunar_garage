@@ -11,7 +11,7 @@
 6. Import this in your database:
 
 INSERT INTO `items` (`name`, `label`, `weight`) VALUES
-	('contract', 'Contract', 100),
+	('contract', 'Contract', 100)
 ;
 
 4. Delete old owned_vehicles in database and import this incase of having problems:
