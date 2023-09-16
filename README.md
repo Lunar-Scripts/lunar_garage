@@ -1,8 +1,18 @@
 # lunar_garage
-Highly optimized garage system that allows you to add as many garages as you wish! (car, boat, air)
+Highly optimized garage system that allows you to add as many garages as you wish!
 
-Documentation: https://lunar-scripts.gitbook.io/lunar-scripts/free-scripts/lunar_garage
+# Features
+* Supports ESX/QBCore
+* Multiple vehicle types (garage, air, boat)
+* ox_target/qtarget/qb-target support
+* Very low resmon - 0.0ms on idle
+* Installation files included
 
-Discord: https://discord.gg/zDK4CHQ56N
+# Dependencies: 
+* es_extended/qb-core
+* ox_lib,
+* esx_vehicleshop/qb-vehicleshop (Can be swapped for vehicleshop of choice by editing server/db.lua)
 
-Dependencies: es_extended, ox_lib, esx_vehicleshop
+# Documentation: https://lunar-scripts.gitbook.io/lunar-scripts/free-scripts/lunar_garage
+
+# Discord: https://discord.gg/zDK4CHQ56N
