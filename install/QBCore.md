@@ -4,7 +4,13 @@
 
 2. Ensure the resource in server.cfg
 
-3. Import this in your database:
+3. Copy and paste images into qb-inventory/html/images
+
+4. Add these items in qb-core/shared/items.lua
+
+['contract'] 			 		 	 = {['name'] = 'contract', 							['label'] = 'Contract', 				    ['weight'] = 100, 		['type'] = 'item', 		['image'] = 'contract.png', 		        ['unique'] = false, 	['useable'] = true, 	['shouldClose'] = false,   ['combinable'] = nil,   ['description'] = 'Used for selling/transfering vehicles.'},
+
+5. Import this in your database:
     ALTER TABLE `player_vehicles`
     ADD COLUMN `job` VARCHAR(20) NULL DEFAULT NULL;
 
@@ -14,7 +20,7 @@
     ALTER TABLE `player_vehicles`
     ADD COLUMN `stored` TINYINT(1) NOT NULL DEFAULT '0';
 
-4. Delete old player_vehicles in database and import this incase of having problems:
+6. Delete old player_vehicles in database and import this incase of having problems:
     CREATE TABLE IF NOT EXISTS `player_vehicles` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `license` varchar(50) DEFAULT NULL,

@@ -6,15 +6,17 @@
 
 3. Ensure the resource in server.cfg
 
-5. Copy and paste images into esx_inventoryhud/html/images (Or your inventory images folder)
+4. Copy and paste images into ox_inventory/web/build/images
 
-6. Import this in your database:
+5. Add this to ox_inventory/data/items.lua:
 
-INSERT INTO `items` (`name`, `label`, `weight`) VALUES
-	('contract', 'Contract', 100),
-;
+	['contract'] = {
+		label = 'Contract',
+		weight = 100,
+		stack = true
+	},
 
-4. Delete old owned_vehicles in database and import this incase of having problems:
+6. Delete old owned_vehicles in database and import this incase of having problems:
     CREATE TABLE `owned_vehicles` (
         `owner` VARCHAR(60) NOT NULL,
         `plate` varchar(12) NOT NULL,
