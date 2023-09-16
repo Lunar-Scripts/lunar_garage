@@ -22,7 +22,7 @@
     "not_driver": "You need to be a driver to save the vehicle.",
     "not_your_vehicle": "You don't own this vehicle.",
     "open_impound": "Open impound",
-    "vehicle_saved": "Your vehicle has been saved",
+    "vehicle_saved": "Your vehicle has been saved.",
     "not_in_garage": "This vehicle isn't in the garage.",
     "too_many_vehicles": "There wasn't enough space for all of your stored vehicles.",
     "exit_garage": "[%s] - Exit garage",
