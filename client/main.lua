@@ -70,7 +70,7 @@ function SpawnVehicle(args)
         Wait(0)
     end
 
-    SetVehicleFuel(vehicle, props.fuelLevel)
+    SetVehicleFuel(vehicle, props.fuelLevel or 100.0)
     SetVehicleOwner(props.plate)
 end
 
@@ -128,19 +128,20 @@ local function openGarageVehicles(args)
         local props = json.decode(vehicle.mods or vehicle.vehicle)
 
         local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
+        local fuelLevel = props.fuelLevel or 100.0
 
         ---@type ContextMenuArrayItem
         local option = {
             title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
             icon = getClassIcon(class),
-            progress = class ~= 13 and (props.fuelLevel or 100.0),
-            colorScheme = class ~= 13 and getFuelBarColor(props.fuelLevel),
+            progress = class ~= 13 and fuelLevel,
+            colorScheme = class ~= 13 and getFuelBarColor(fuelLevel),
             metadata = {
                 ---@diagnostic disable-next-line: assign-type-mismatch
                 { label = locale('status'), value = locale(vehicle.state) },
                 
                 ---@diagnostic disable-next-line: assign-type-mismatch
-                { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
+                { label = locale('fuel'), value = class ~= 13 and fuelLevel .. '%' or locale('no_fueltank') }
             },
             args = { index = index, props = props },
             onSelect = vehicle.state == 'in_garage' and SpawnVehicle or function()
@@ -288,16 +289,17 @@ local function openImpoundVehicles(args)
         local props = json.decode(vehicle.mods or vehicle.vehicle)
 
         local class = GetVehicleClassFromName(GetDisplayNameFromVehicleModel(props.model))
+        local fuelLevel = props.fuelLevel or 100.0
 
         ---@type ContextMenuArrayItem
         local option = {
             title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
             icon = getClassIcon(class),
-            progress = class ~= 13 and props.fuelLevel,
-            colorScheme = class ~= 13 and getFuelBarColor(props.fuelLevel),
+            progress = class ~= 13 and fuelLevel,
+            colorScheme = class ~= 13 and getFuelBarColor(fuelLevel),
             metadata = {
                 ---@diagnostic disable-next-line: assign-type-mismatch
-                { label = locale('fuel'), value = class ~= 13 and props.fuelLevel .. '%' or locale('no_fueltank') }
+                { label = locale('fuel'), value = class ~= 13 and fuelLevel .. '%' or locale('no_fueltank') }
             },
             args = { index = index, props = props },
             onSelect = retrieveVehicle
