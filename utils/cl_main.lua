@@ -28,6 +28,8 @@ local scenarios = {
     'WORLD_HUMAN_SMOKING'
 }
 
+local count = 0
+
 function Utils.createPed(coords, model, options)
     if not IsModelValid(model) then
         error('Invalid ped model: %s', model)
@@ -37,7 +39,8 @@ function Utils.createPed(coords, model, options)
     if options then
         for _, option in pairs(options) do
             if option.onSelect then
-                local event = ('options_%p'):format(option.onSelect) -- Create unique name
+                count += 1
+                local event = ('options_%p_%s'):format(option.onSelect, count) -- Create unique name
                 ---@type function
                 local onSelect = option.onSelect
                 AddEventHandler(event, function()
