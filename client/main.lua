@@ -97,6 +97,9 @@ local function getClassIcon(class)
 end
 
 local function getFuelBarColor(fuel)
+    -- fuelLevel not defined in vehicleProps??
+    if not fuel then return 'lime' end
+
     if fuel > 75.0 then
         return 'lime'
     elseif fuel > 50.0 then
@@ -130,7 +133,7 @@ local function openGarageVehicles(args)
         local option = {
             title = locale('vehicle_info', GetVehicleLabel(props.model), props.plate),
             icon = getClassIcon(class),
-            progress = class ~= 13 and props.fuelLevel,
+            progress = class ~= 13 and (props.fuelLevel or 100.0),
             colorScheme = class ~= 13 and getFuelBarColor(props.fuelLevel),
             metadata = {
                 ---@diagnostic disable-next-line: assign-type-mismatch
