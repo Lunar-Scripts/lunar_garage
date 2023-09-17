@@ -380,11 +380,7 @@ lib.onCache('vehicle', function(vehicle)
 end)
 
 for index, data in ipairs(Config.Garages) do
-    if data.Position and data.PedPosition then
-        error('Position and PedPosition can\'t be defined at the same time!')
-    end
-    
-    if data.Position then
+    if (not Config.Target or not data.PedPosition) and data.Position then
         lib.zones.sphere({
             coords = data.Position,
             radius = Config.MaxDistance,
@@ -401,7 +397,7 @@ for index, data in ipairs(Config.Garages) do
                 currentGarageIndex = nil
             end
         })
-    elseif data.PedPosition then
+    elseif (Config.Target or not data.Position) and data.PedPosition then
         if not data.Model then
             warn(('Skipping garage - missing Model, index: %s'):format(index))
             goto continue
@@ -446,11 +442,7 @@ for index, data in ipairs(Config.Garages) do
 end
 
 for index, data in ipairs(Config.Impounds) do
-    if data.Position and data.PedPosition then
-        error('Position and PedPosition can\'t be defined at the same time!')
-    end
-    
-    if data.Position then
+    if (not Config.Target or not data.PedPosition) and data.Position then
         lib.zones.sphere({
             coords = data.Position,
             radius = Config.MaxDistance,
@@ -467,7 +459,7 @@ for index, data in ipairs(Config.Impounds) do
                 Binds.first.removeListener('impound')
             end
         })
-    elseif data.PedPosition then
+    elseif (Config.Target or not data.Position) and data.PedPosition then
         if not data.Model then
             warn(('Skipping impound - missing Model, index: %s'):format(index))
             goto continue
