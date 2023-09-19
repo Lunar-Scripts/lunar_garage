@@ -207,6 +207,7 @@ local function saveVehicle(vehicle)
 
     if not props then return end
 
+    props.plate = props.plate:strtrim(' ') -- Trim whitespace
     props.fuelLevel = GetVehicleFuel(vehicle)
     local netId = NetworkGetNetworkIdFromEntity(vehicle)
     local result = lib.callback.await('lunar_garage:saveVehicle', false, props, netId)
