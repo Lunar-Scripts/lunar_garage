@@ -1,14 +1,12 @@
-1. Use OX.md if you're using ox_inventory, otherwise follow this tutorial.
-
-2. Install these dependecies:
+1. Install these dependecies:
     ox_lib - https://github.com/overextended/ox_lib/releases/latest/download/ox_lib.zip
     ox_target/qtarget/qb-target (Optional, depends on config)
 
-3. Ensure the resource in server.cfg
+2. Ensure the resource in server.cfg
 
-4. Copy and paste images into ox_inventory/web/build/images
+3. Copy and paste images into ox_inventory/web/build/images
 
-5. Add this to ox_inventory/data/items.lua:
+4. Add this to ox_inventory/data/items.lua:
 
 	['contract'] = {
 		label = 'Contract',
@@ -16,7 +14,7 @@
 		stack = true
 	},
 
-6. Delete old owned_vehicles in database and import this incase of having problems:
+5. Delete old owned_vehicles in database and import this incase of having problems:
     CREATE TABLE `owned_vehicles` (
         `owner` VARCHAR(60) NOT NULL,
         `plate` varchar(12) NOT NULL,
