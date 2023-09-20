@@ -56,7 +56,7 @@ function Utils.createPed(coords, model, options)
         end
     end
 
-    local ped
+    local ped, id
     lib.points.new({
         coords = coords.xyz,
         distance = 100.0,
@@ -68,11 +68,11 @@ function Utils.createPed(coords, model, options)
             SetBlockingOfNonTemporaryEvents(ped, true)
             TaskStartScenarioInPlace(ped, Utils.randomFromTable(scenarios))
             if options then
-                local name = ('garage_ped_%s'):format(ped)
+                id = ('garage_ped_%s'):format(ped)
 
                 -- No need to add support for ox_target/qb-target, because this export is intercompatible
-                exports.qtarget:AddCircleZone(name, coords.xyz, 0.75, {
-                    name = name,
+                exports.qtarget:AddCircleZone(id, coords.xyz, 0.75, {
+                    name = id,
                     debugPoly = false
                 }, {
                     options = options
@@ -83,6 +83,11 @@ function Utils.createPed(coords, model, options)
             DeleteEntity(ped)
             SetModelAsNoLongerNeeded(model)
             ped = nil
+
+            if id then
+                exports.qtarget:RemoveZone(id)
+                id = nil
+            end
         end
     })
 end
