@@ -59,5 +59,6 @@
     "society_cancel": "Ne",
     "garage_menu": "Garáź",
     "impound_menu": "Odtahovka",
-    "offer_declined": "Nabídka byla odmítnuta."
+    "offer_declined": "Nabídka byla odmítnuta.",
+    "spawn_occupied": "Spawnpoint je momentálně obsazen."
 }

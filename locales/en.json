@@ -59,5 +59,6 @@
     "society_cancel": "Cancel",
     "garage_menu": "Garage",
     "impound_menu": "Impound",
-    "offer_declined": "The offer has been declined."
+    "offer_declined": "The offer has been declined.",
+    "spawn_occupied": "The spawnpoint is currently occupied."
 }

@@ -34,6 +34,13 @@ function SpawnVehicle(args)
     ---@type integer, VehicleProperties
     local index, props in args
     
+    local garage = Config.Garages[index]
+    
+    if Config.SpawnpointCheck and lib.getClosestVehicle(garage.SpawnPosition, 3.0, false) then
+        ShowNotification(locale('spawn_occupied'), 'error')
+        return
+    end
+
     lib.requestModel(props.model)
     local type = getVehicleType(props.model)
     local netId = lib.callback.await('lunar_garage:takeOutVehicle', false, index, props.plate, type)
