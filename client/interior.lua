@@ -6,6 +6,7 @@ local busy, currentIndex, point, entities, lastCoords = false, nil, nil, {}, nil
 local function chooseVehicle(index)
     if busy then return end
 
+    Binds.first.removeListener('choose_vehicle')
     busy = true
     local vehicle = cache.vehicle
     local props = lib.getVehicleProperties(vehicle)
