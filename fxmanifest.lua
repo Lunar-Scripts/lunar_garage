@@ -5,7 +5,7 @@ lua54 'yes'
 
 author 'Lunar Scripts'
 description 'Garage system'
-version '2.0.2'
+version '2.0.3'
 
 files {
     'locales/*.json'
