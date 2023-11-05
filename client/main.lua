@@ -416,7 +416,8 @@ for index, data in ipairs(Config.Garages) do
             goto continue
         end
 
-        Utils.createPed(data.PedPosition, data.Model, {
+        Utils.createPed(data.PedPosition, data.Model)
+        Utils.createTarget(data.PedPosition, {
             {
                 label = locale('open_garage'),
                 icon = 'warehouse',
@@ -440,10 +441,14 @@ for index, data in ipairs(Config.Garages) do
                 job = data.Jobs,
                 onSelect = function()
                     local vehicle = GetVehiclePedIsIn(cache.ped, true)
-
-                    if Utils.distanceCheck(cache.ped, vehicle, 20.0) then
+                    if vehicle == 1 then 
                         saveVehicle(vehicle)
-                    end
+                    else
+                        vehicle, _ = ESX.Game.GetClosestVehicle(GetEntityCoords(cache.ped))
+                        if Utils.distanceCheck(cache.ped, vehicle, 20.0) then
+                            saveVehicle(vehicle)
+                        end
+                    end    
                 end
             }
         })
@@ -478,7 +483,8 @@ for index, data in ipairs(Config.Impounds) do
             goto continue
         end
 
-        Utils.createPed(data.PedPosition, data.Model, {
+        Utils.createPed(data.PedPosition, data.Model)
+        Utils.createTarget(data.PedPosition, {
             {
                 label = locale('open_impound'),
                 icon = 'warehouse',
