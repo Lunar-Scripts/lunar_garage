@@ -35,6 +35,32 @@ function Utils.createPed(coords, model, options)
         error('Invalid ped model: %s', model)
     end
 
+    local ped, id
+    lib.points.new({
+        coords = coords.xyz,
+        distance = 100.0,
+        onEnter = function()
+            lib.requestModel(model)
+            ped = CreatePed(4, model, coords.x, coords.y, coords.z - 1.0, coords.w, false, true)
+            SetEntityInvincible(ped, true)
+            FreezeEntityPosition(ped, true)
+            SetBlockingOfNonTemporaryEvents(ped, true)
+            TaskStartScenarioInPlace(ped, Utils.randomFromTable(scenarios))
+        end,
+        onExit = function()
+            DeleteEntity(ped)
+            SetModelAsNoLongerNeeded(model)
+            ped = nil
+
+            if id then
+                exports.qtarget:RemoveZone(id)
+                id = nil
+            end
+        end
+    })
+end
+
+function Utils.createTarget(coords, id, options)
     -- Convert action to qtarget
     if options then
         for _, option in pairs(options) do
@@ -54,42 +80,17 @@ function Utils.createPed(coords, model, options)
                 option.icon = ('fa-solid fa-%s'):format(option.icon)
             end
         end
+
+        local name = ('garage_ped_%s'):format(id)
+
+        -- No need to add support for ox_target/qb-target, because this export is intercompatible
+        exports.qtarget:AddCircleZone(name, coords.xyz, 0.75, {
+            name = name,
+            debugPoly = false
+        }, {
+            options = options
+        })
     end
-
-    local ped, id
-    lib.points.new({
-        coords = coords.xyz,
-        distance = 100.0,
-        onEnter = function()
-            lib.requestModel(model)
-            ped = CreatePed(4, model, coords.x, coords.y, coords.z - 1.0, coords.w, false, true)
-            SetEntityInvincible(ped, true)
-            FreezeEntityPosition(ped, true)
-            SetBlockingOfNonTemporaryEvents(ped, true)
-            TaskStartScenarioInPlace(ped, Utils.randomFromTable(scenarios))
-            if options then
-                id = ('garage_ped_%s'):format(ped)
-
-                -- No need to add support for ox_target/qb-target, because this export is intercompatible
-                exports.qtarget:AddCircleZone(id, coords.xyz, 0.75, {
-                    name = id,
-                    debugPoly = false
-                }, {
-                    options = options
-                })
-            end
-        end,
-        onExit = function()
-            DeleteEntity(ped)
-            SetModelAsNoLongerNeeded(model)
-            ped = nil
-
-            if id then
-                exports.qtarget:RemoveZone(id)
-                id = nil
-            end
-        end
-    })
 end
 
 ---@param point1 vector3 | vector4 | number
