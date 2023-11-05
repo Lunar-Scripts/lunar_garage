@@ -417,7 +417,7 @@ for index, data in ipairs(Config.Garages) do
         end
 
         Utils.createPed(data.PedPosition, data.Model)
-        Utils.createTarget(data.PedPosition, {
+        Utils.createTarget(data.PedPosition, currentGarageIndex, {
             {
                 label = locale('open_garage'),
                 icon = 'warehouse',
@@ -484,7 +484,7 @@ for index, data in ipairs(Config.Impounds) do
         end
 
         Utils.createPed(data.PedPosition, data.Model)
-        Utils.createTarget(data.PedPosition, {
+        Utils.createTarget(data.PedPosition, currentGarageIndex, {
             {
                 label = locale('open_impound'),
                 icon = 'warehouse',
