@@ -15,6 +15,7 @@ INSERT INTO `items` (`name`, `label`, `weight`) VALUES
 ;
 
 4. Delete old owned_vehicles in database and import this incase of having problems:
+```sql
     CREATE TABLE `owned_vehicles` (
         `owner` VARCHAR(60) NOT NULL,
         `plate` varchar(12) NOT NULL,
@@ -25,3 +26,4 @@ INSERT INTO `items` (`name`, `label`, `weight`) VALUES
 
         PRIMARY KEY (`plate`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;a
+```
