@@ -36,7 +36,7 @@ function SpawnVehicle(args)
     
     local garage = Config.Garages[index]
     
-    if Config.SpawnpointCheck and lib.getClosestVehicle(garage.SpawnPosition, 3.0, false) then
+    if Config.SpawnpointCheck and lib.getClosestVehicle(garage.SpawnPosition.xyz, 3.0, false) then
         ShowNotification(locale('spawn_occupied'), 'error')
         return
     end
