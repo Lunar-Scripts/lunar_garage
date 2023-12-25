@@ -1,15 +1,26 @@
 local function getVehicleType(model)
     if IsThisModelABike(model) then
         return 'bike'
-    elseif IsThisModelACar(model) then
+    end
+
+    -- Not really sure if quadbike is considered an automobile or a bike
+    if IsThisModelACar(model) or IsThisModelAQuadbike(model) then
         return 'automobile'
-    elseif IsThisModelABoat(model) then
+    end
+
+    if IsThisModelABoat(model) or IsThisModelAJetski(model) then
         return 'boat'
-    elseif IsThisModelAPlane(model) then
+    end
+
+    if IsThisModelAPlane(model) then
         return 'plane'
-    elseif IsThisModelAHeli(model) then
+    end
+
+    if IsThisModelAHeli(model) then
         return 'heli'
     end
+
+    CreateVehicleServerSetter()
 end
 
 -- Taken from ox_lib, but higher timeout value and modified
