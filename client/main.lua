@@ -19,8 +19,6 @@ local function getVehicleType(model)
     if IsThisModelAHeli(model) then
         return 'heli'
     end
-
-    CreateVehicleServerSetter()
 end
 
 -- Taken from ox_lib, but higher timeout value and modified
