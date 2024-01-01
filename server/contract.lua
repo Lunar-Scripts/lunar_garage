@@ -34,6 +34,10 @@ local function transferToPlayer(source, plate, label)
         return
     end
 
+    if target:getAccountMoney('money') < price then
+        return
+    end
+
     MySQL.update.await(Queries.transferVehiclePlayer, { target:getIdentifier(), plate })
     player:removeItem(Config.Contract.Item, 1)
     target:removeAccountMoney('money', price)
