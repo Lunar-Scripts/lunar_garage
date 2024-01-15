@@ -15,7 +15,7 @@
 	},
 
 5. Delete old owned_vehicles in database and import this incase of having problems:
-```lua
+```sql
     CREATE TABLE `owned_vehicles` (
         `owner` VARCHAR(60) NOT NULL,
         `plate` varchar(12) NOT NULL,
