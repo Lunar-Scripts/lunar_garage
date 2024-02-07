@@ -1,4 +1,7 @@
 # lunar_garage
+
+## This repository has been archived due to the lack of motivation to solve reports from users that aren't even able to go through the installation file. Work on this repository has been suspended indefinitely.
+
 Highly optimized garage system that allows you to add as many garages as you wish!
 
 # Features
